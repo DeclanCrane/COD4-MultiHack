@@ -1,0 +1,8 @@
+# Ignore build files
+Release
+Debug
+Call of Duty 4/Release
+Call of Duty 4/Debug
+
+# Ignore Visual Studio cache
+.vs
