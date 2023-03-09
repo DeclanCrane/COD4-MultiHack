@@ -1,8 +1,8 @@
 #pragma once
+#include <stdint.h>
 #include "COD4Enums.h"
+#include "Vec.h"
 
-typedef float vec2_t[2];
-typedef float vec3_t[3];
 typedef struct color_t
 {
 	char r;
@@ -1122,22 +1122,33 @@ typedef struct dvar_s {
 	DvarValue reset;
 };
 
-//struct clSnapshot_t
-//{
-//	int valid; //0x0000
-//	int snapFlags; //0x0004
-//	int serverTime; //0x0008
-//	int messageNum; //0x000C
-//	int deltaNum; //0x0010
-//	int ping; //0x0014
-//	int cmdNum; //0x0018
-//	char PlayerState[3033][4]; //0x001C
-//	int numEntities; //0x2F80
-//	int numClients; //0x2F84
-//	int parseEntitiesNum; //0x2F88
-//	int parseClientsNum; //0x2F8C
-//	int serverCommandNum; //0x2F90
-//}; //Size: 0x2F94
+struct trace_t
+{
+	float Fraction;
+	vec3_t normal;
+	int surfaceFlags;
+	int contents;
+	char* material;
+	TraceHitType hitType;
+	unsigned char szUnknown0[264];
+};
+
+struct clSnapshot_t
+{
+	int valid; //0x0000
+	int snapFlags; //0x0004
+	int serverTime; //0x0008
+	int messageNum; //0x000C
+	int deltaNum; //0x0010
+	int ping; //0x0014
+	int cmdNum; //0x0018
+	char PlayerState[3033][4]; //0x001C
+	int numEntities; //0x2F80
+	int numClients; //0x2F84
+	int parseEntitiesNum; //0x2F88
+	int parseClientsNum; //0x2F8C
+	int serverCommandNum; //0x2F90
+}; //Size: 0x2F94
 
 //struct gameState_t
 //{

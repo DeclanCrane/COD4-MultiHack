@@ -1,5 +1,10 @@
 #pragma once
 
+enum groundState {
+	ON_GROUND = 1022,
+	IN_AIR = 1023,
+};
+
 enum weapClass_t {
 	WEAPCLASS_RIFLE = 0,
 	WEAPCLASS_MG = 1,

@@ -8,6 +8,14 @@
 #include "Drawing.h"
 #include "COD4Structs.h"
 #include "Aimbot.h"
+#include "Entity.h"
+#include "Game.h"
+#include "COD4Constants.h"
+#include "COD4Functions.h"
+#include "Hack.h"
+#include "Vec.h"
+
+#include <iomanip>
 
 //cgs_t* pCGs = (cgs_t*)0x0742908;
 //clientActive_t* clientActive = (clientActive_t*)0xC57930;
@@ -19,21 +27,6 @@ tRenderScene oRenderScene;
 
 typedef void(__cdecl* _ClientEndFrame)(int unknown);
 _ClientEndFrame ClientEndFrame;
-
-bool IsTargetVisible(unsigned short tag, int* cEnt) {
-    bool bVisible = false;
-    DWORD dwFunc = 0x403470;
-    __asm {
-        movzx esi, tag;
-        mov edi, 0x08474B4;
-        push edi;
-        mov eax, esi;
-        call dwFunc;
-        add esp, 4;
-        mov bVisible, al;
-    }
-    return bVisible;
-}
 
 bool IsTargetValid(int* cEnt) {
     DWORD dwFunc = 0x403360;
@@ -49,21 +42,6 @@ bool IsTargetValid(int* cEnt) {
     return bValid;
 }
 
-// Unfinished, doesn't return string
-// Works though
-void GetPlayerNameByClientNum() {
-    char name[40];
-    DWORD dwFunc = 0x471550;
-    __asm {
-        mov esi, 0;
-        lea edx, name;
-        push edx;
-        call dwFunc;
-        add esp, 4;
-    }
-    std::cout << name << std::endl;
-}
-
 int GetTagPos_0(unsigned short TagName, int* Entity, vec3_t* Origin)
 {
     _asm push Origin
@@ -75,20 +53,18 @@ int GetTagPos_0(unsigned short TagName, int* Entity, vec3_t* Origin)
     _asm add esp, 0x4
 }
 
-// Head Bone
-WORD headBone = 0;
 void __cdecl newClientEndFrame(int unknown) {
     if (GetAsyncKeyState(VK_NUMPAD1) & 0x01) {
-        headBone = fnRegisterTag("j_head", 1, 7);
+        /*headBone = RegisterTag("j_head", 1, 7);*/
         //if (AimTarget_IsTargetVisible(headBone, (int*)(0x08474B4))) {
         //    std::cout << "Visible\n";
         //}
         //else {
         //    std::cout << "Invisible\n";
         //}
-        vec3_t bonePos = {};
-        GetTagPos_0(headBone, (int*)(0x08474B4), &bonePos);
-        std::cout << "X: " << bonePos[0] << std::endl;
+        //vec3_t bonePos = {};
+        //GetTagPos_0(headBone, (int*)(0x08474B4), &bonePos);
+        //std::cout << "X: " << bonePos.x << std::endl;
     }
     ClientEndFrame(unknown);
 }
@@ -126,18 +102,6 @@ void __cdecl hCG_FastTrace(CTrace* pTrace, const vec3_t StartPos, const vec3_t E
     }
 }
 
-bool CG_OnSameTeam(int* gEnt, int* gEnt2) {
-    int bSameTeam = 0;
-    DWORD dwFunc = 0x4DB990;
-    __asm {
-        mov ecx, gEnt2;
-        mov eax, gEnt;
-        call dwFunc;
-        mov bSameTeam, eax;
-    }
-    return (bSameTeam == 1);
-}
-
 void FillClip(int* playerState, int weapon) {
     DWORD dwFunc = 0x4B65B0;
     __asm {
@@ -150,7 +114,7 @@ void FillClip(int* playerState, int weapon) {
 bool IsVisible(vec3_t v3EndPos, float nHeight)
 {
     CTrace mTrace;
-    v3EndPos[2] += nHeight;
+    v3EndPos.z += nHeight;
     vec3_t v3Zero = { 0.0f, 0.0f, 0.0f };
     hCG_FastTrace(&mTrace, pRefDef->vCameraPos, v3EndPos, v3Zero, v3Zero, 0, 0x2803001);
     return(mTrace.Fraction == 1.0f);
@@ -158,20 +122,20 @@ bool IsVisible(vec3_t v3EndPos, float nHeight)
 
 void Wall(Entity* pEntity, RefDef* refdef)
 {
-    if (!IsVisible(pEntity->CameraPos, 0.f))
-        return;
+    //if (!IsVisible(pEntity->CameraPos, 0.f))
+    //    return;
 
     if (pEntity->bAlive) { // If enemy is alive
 
-        vec2_t enemyScreenPos = { 0.f };
-        vec2_t enemyHead2D = { 0.f };
+        vec2_t enemyScreenPos;
+        vec2_t enemyHead2D;
 
         if (Drawing.WorldToScreen(pEntity->vOrigin, enemyScreenPos, refdef)) {
             // Top of box
-            vec3_t vHeadOrigin = { 0.f };
-            vHeadOrigin[0] = pEntity->vOrigin[0];
-            vHeadOrigin[1] = pEntity->vOrigin[1];
-            vHeadOrigin[2] = pEntity->vOrigin[2] + 65.f; // Height of Zombie / Bot
+            vec3_t vHeadOrigin;
+            vHeadOrigin.x = pEntity->vOrigin.x;
+            vHeadOrigin.y = pEntity->vOrigin.y;
+            vHeadOrigin.z = pEntity->vOrigin.z + 65.f; // Height of Zombie / Bot
 
             if (Drawing.WorldToScreen(vHeadOrigin, enemyHead2D, refdef)) {
                     Drawing.DrawEspBox2D(enemyScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(1 * 255), int(0 * 255), int(0 * 255)));
@@ -183,23 +147,23 @@ void Wall(Entity* pEntity, RefDef* refdef)
 void Wall(DynamicEntity* pEntity, RefDef* refdef)
 {
 
-        vec2_t enemyScreenPos = { 0.f };
-        vec2_t enemyHead2D = { 0.f };
+        vec2_t enemyScreenPos;
+        vec2_t enemyHead2D;
 
         if (Drawing.WorldToScreen(pEntity->vOrigin, enemyScreenPos, refdef)) {
 
             // Line ESP
             if (true)
             {
-                Drawing.DrawLine(enemyScreenPos[0], enemyScreenPos[1], refdef->width / 2, refdef->height, 1,
+                Drawing.DrawLine(enemyScreenPos.x, enemyScreenPos.y, refdef->width / 2, refdef->height, 1,
                     D3DCOLOR_ARGB(255, int(0 * 255), int(1 * 255), int(0 * 255)));
             }
 
             // Top of box
-            vec3_t vHeadOrigin = { 0.f };
-            vHeadOrigin[0] = pEntity->vOrigin[0];
-            vHeadOrigin[1] = pEntity->vOrigin[1];
-            vHeadOrigin[2] = pEntity->vOrigin[2] + 15.f; // Height of Zombie / Bot
+            vec3_t vHeadOrigin;
+            vHeadOrigin.x = pEntity->vOrigin.x;
+            vHeadOrigin.y = pEntity->vOrigin.y;
+            vHeadOrigin.z = pEntity->vOrigin.z + 15.f; // Height of Zombie / Bot
 
             if (Drawing.WorldToScreen(vHeadOrigin, enemyHead2D, refdef)) {
                 Drawing.DrawEspBox2D(enemyScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(1 * 255), int(0 * 255), int(0 * 255)));
@@ -228,17 +192,19 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
         Wall(Entities[i], pRefDef);
     }
 
-    GetDynamicEntities(DynEntities);
-    for (int i = 0; i < DynEntities.size(); i++) {
-        Wall(DynEntities[i], pRefDef);
-    }
+    //GetDynamicEntities(DynEntities);
+    //for (int i = 0; i < DynEntities.size(); i++) {
+    //    Wall(DynEntities[i], pRefDef);
+    //}
 
     if (GetAsyncKeyState(VK_DOWN) & 0x01) {
         bool bCheckForVisible = false;
         if (Entities[1] != nullptr) {
-            if (IsVisible(Entities[1]->CameraPos, 0.f) || !bCheckForVisible) {
-                DoAimbot(Entities[1]);
-            }
+            //if (IsVisible(Entities[1]->CameraPos, 0.f) || !bCheckForVisible) {
+            //    DoAimbot(Entities[1]);
+            //}
+            DoAimbot(Entities[1]);
+            Sleep(1); // Prevents jitter?
         }
     }
 
@@ -274,10 +240,34 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
         //gentity_s* pLocal = (gentity_s*)0x1280774;
         //vec3_t newAngles = { (pLocal->client->viewAngles[0] + 28.f), (pLocal->client->viewAngles[1] + 28.f), 0.f};
         //SetClientViewAngle((int*)0x1280774, newAngles);
-        
-        gentity_s* pLocal = (gentity_s*)0x1280500;
 
-        //CG_OutOfAmmoChange(0); // Changes players' weapons
+        //for (int i = 0; i < 1; i++) {
+        //    Player tempPlayer(i);
+        //    players.push_back(tempPlayer);
+        //}
+
+        //std::cout << players[0].GetWeaponID() << "\n";
+        //WeaponDef* weapon = players[0].GetWeaponDef();
+        //weapon->fireType = WEAPON_FIRETYPE_FULLAUTO;
+        //std::cout << players[0].GetTeam() << "\n";
+        //std::cout << players[0].IsOnLadder() << "\n";
+
+        if (CG_OnSameTeam((gentity_s*)0x1280500, (gentity_s*)0x1280774)) {
+            std::cout << "Friendly!\n";
+        }
+        else {
+            std::cout << "Enemy!\n";
+        }
+
+        unsigned short head = RegisterTag("j_head", 1, 7);
+        if (IsTargetVisible(head, (centity_t*)0x08474B4)) {
+            std::cout << "Visible!\n";
+        }
+        else {
+            std::cout << "Invisible!\n";
+        }
+
+        FireWeapon((gentity_s*)0x1280500, game.GetServerTime());
     }
 
     if (GetAsyncKeyState(VK_RIGHT) & 0x01) {
@@ -293,18 +283,30 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
         //std::cout << "X: " << bonePos[0] << " " << "Y: " << bonePos[1] << " " << "Z: " << bonePos[2] << "\n";
 
         //std::cout << "Bone: " << *(unsigned short*)0x13FEE98 << std::endl;
+
+        //std::cout << "Gametype: " << game.gameType << "\n";
+        //std::cout << "Mapname: " << game.mapName << "\n";
+        //game.GetPlayerList();
     }
 
     if (GetAsyncKeyState(VK_NUMPAD0) & 0x01) {
-        vec3_t newAngles = { Entities[0]->vAngles[0], Entities[0]->vAngles[1], 0.f};
-        newAngles[1] = 70.f;
-
-        SetPlayerViewAngles(Entities[0], newAngles);
+        std::cout << "Size of Vec3: " << sizeof(vec3_t) << std::endl;
+        vec3_t x(1.f, 1.f, 1.f);
+        vec3_t y(2.f, 4.f, 6.f);
+        //Vec3 out = y - x;
+        //std::cout << "X: " << out.x << " " << "Y: " << out.y << " " << "Z: " << out.z << "\n";
+        double dot = x.DotProduct(y);
+        float blah = 12.2131;
+        std::cout << "Dot: " << std::setprecision(6) << dot << "\n";
+        vec3_t z = { 1.f, 1.f, 1.f };
+        vec3_t e = { 2.f, 4.f, 6.f };
     }
 
     if (GetAsyncKeyState(VK_UP) & 0x01) {
         //int result = Com_PrintWarning(17, "Warning: Hello, World!", 0);
         //std::cout << result << std::endl;
+
+        ClientDisconnect(1);
     }
 
     if (GetAsyncKeyState(VK_F1) & 0x01) {
@@ -370,11 +372,6 @@ int MainThread(PVOID pModule) {
     // Setup EndScene Hook
     Hook.HookEndScene(hWindow, myDetour, myResetDetour);
 
-    // Reserve entity size to avoid memory reallocation
-    Entities.reserve(32);
-
-    headBone = fnRegisterTag("j_head", 1, 7);
-
     // Hook RenderScene
     //0x5DAB10 - RENDERSCENE
     //0x42C120 - OTHER GAME FUNCTION
@@ -402,62 +399,11 @@ int MainThread(PVOID pModule) {
         //    *pClipAmmo = 69;
         //}
 
-        if (GetAsyncKeyState(VK_F3) & 0x01) {
-            GetPlayers(Entities);
-            std::cout << Entities[0] << "\n";
-            std::cout << Entities[1] << "\n";
-            std::cout << "Number of Players: " << pCGame->NumOfPlayers << "\n";
-            int health = ((Entity*)pGEntities)->Health;
-            std::cout << &((Entity*)pGEntities)->Health << ": " << health << "\n";
-            std::cout << &((Entity*)pGEntities)->vOrigin[0] << ": " << ((Entity*)pGEntities)->vOrigin[0] << "\n";
-            std::cout << &((Entity*)pGEntities)->vOrigin[1] << ": " << ((Entity*)pGEntities)->vOrigin[1] << "\n";
-            std::cout << &((Entity*)pGEntities)->vOrigin[2] << ": " << ((Entity*)pGEntities)->vOrigin[2] << "\n";
-            std::cout << "Equipment Pointer: " << ((Entity*)pGEntities)->pEquipment << "\n";
-            std::cout << &((Entity*)pGEntities)->bAlive << ": " << ((Entity*)pGEntities)->bAlive << "\n";
-        }
-
-        if (GetAsyncKeyState(VK_F2) & 0x01) {
-            std::cout << "FoV: " << pRefDef->tanHalfFovX << " " << pRefDef->tanHalfFovY << "\n";
-            std::cout << "Screen Resolution : " << pRefDef->width << "x" << pRefDef->height << "\n";
-            std::cout << "================================================\n";
-            std::cout << "View Matrix\n";
-            std::cout << pRefDef->mViewMatrix[0][0] << " " << pRefDef->mViewMatrix[0][1] << " " << pRefDef->mViewMatrix[0][2] << "\n";
-            std::cout << pRefDef->mViewMatrix[1][0] << " " << pRefDef->mViewMatrix[1][1] << " " << pRefDef->mViewMatrix[1][2] << "\n";
-            std::cout << pRefDef->mViewMatrix[2][0] << " " << pRefDef->mViewMatrix[2][1] << " " << pRefDef->mViewMatrix[2][2] << "\n";
-        }
-
-        if (GetAsyncKeyState(VK_F4) & 0x01) {
-            std::vector<DynamicEntity*>Entities = {};
-            GetDynamicEntities(Entities);
-            
-            std::cout << "DynEnt List Address: " << pDynamicEntList << "\n";
-            std::cout << "First Entity Offset: " << (pDynamicEntList + 1) << "\n";
-
-            if (Entities.size() > 0) {
-                for (int i = 0; i < Entities.size(); i++) {
-                    std::cout << "=================ENTITY: " << i << "=================\n";
-                    std::cout << "Entity Address: " << Entities[i] << "\n";
-                    std::cout << Entities[i]->EntityType << "\n";
-                    std::cout << "Entities Origin: " << "\n";
-                    std::cout << Entities[i]->vOrigin[0] << " " << Entities[i]->vOrigin[1] << " " << Entities[i]->vOrigin[2] << "\n";
-                    std::cout << "=====================================================\n";
-                }
-            }
-        }
+        Hack();
 
         if (GetAsyncKeyState(VK_F5) & 0x01) {
-            pViewAngles->vViewAngles[0] += 0.22f;
-            pViewAngles->vViewAngles[1] += 0.22f;
-        }
-
-        if (GetAsyncKeyState(VK_F10) & 0x01) {
-            int value = BG_GetWeaponIndexForName("m4_gl_mp");
-            std::cout << "Returned value: " << value << "\n";
-        }
-
-        if (GetAsyncKeyState(VK_F9) & 0x01) {
-            int value = fnSendServerCommand(0, "map_restart");
-            std::cout << "Returned value: " << value << "\n";
+            pViewAngles->vViewAngles.x += 0.22f;
+            pViewAngles->vViewAngles.y += 0.22f;
         }
     }
 

@@ -148,3 +148,78 @@ bool GetPlayerWeaponDef(int weaponId, WeaponDef* &weaponDef)
         return true;
     return false;
 }
+
+Player::Player(int clientNum)
+{
+    this->clientNum = clientNum;
+
+    // Get all the information related to this player
+    this->cEntity = (centity_t*)(pCEntities + 0x1DC * clientNum);
+    this->gEntity = (gentity_s*)(pGEntities + 0x274 * clientNum);
+
+    this->playerState = &gEntity->client->playerState;
+    this->clientSession = &gEntity->client->clientSession;
+
+    this->vOrigin = &gEntity->entityState.lerpEntityState.trOrigin.trBase;
+}
+
+unsigned int Player::GetWeaponID()
+{
+    return this->gEntity->entityState.weapon;
+}
+
+WeaponDef* Player::GetWeaponDef()
+{
+    return *(WeaponDef**)((GetWeaponID() * 4) + pWeaponInfoBase);
+}
+
+unsigned short Player::GetTeam()
+{
+    return clientSession->clientState.team_t;
+}
+
+bool Player::IsOnGround()
+{
+    if (playerState->groundEntityNum == ON_GROUND)
+        return true;
+    return false;
+}
+
+bool Player::IsOnLadder()
+{
+    /* 
+        This may not be the best way to do this.
+        Needs testing
+    */
+
+    // 0x8 seems to be a playerMovement flag for going up a ladder
+    // 0x28 is for going down
+    if (playerState->pm_flags == 0x8 || playerState->pm_flags == 0x28)
+        return true;
+
+    return false;
+}
+
+bool Player::IsAlive()
+{
+    if (clientSession->sessionState_t != SESS_STATE_PLAYING)
+        return false;
+    return true;
+}
+
+bool Player::IsValid()
+{
+    // Set to 1 if it's a valid player ( HUMAN )
+    if (gEntity->entityState.eType)
+        return true;
+    return false;
+}
+
+/* NOTES
+    - You can get players current clip ammo and equipment by 
+        getting weaponID and accessing that index in the ammo array
+
+    - You can edit a players perks with the bitfield inside gclient
+    - You can modify perk multipliers inside their respective dvar
+    - Check weapFlags, it's set if player runs out of ammo
+*/

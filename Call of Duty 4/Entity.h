@@ -2,6 +2,7 @@
 #include "Structs.h"
 #include "Offsets.h"
 #include "COD4Structs.h"
+#include "Vec.h"
 #include <vector>
 
 // Gets all the player entities
@@ -26,3 +27,23 @@ bool IsPlayerOnGround(Entity* Player);
 bool GetPlayersWeapon(Entity* Player);
 
 bool GetPlayerWeaponDef(int weaponId, WeaponDef* &weaponDef);
+
+class Player {
+public:
+    int clientNum;
+    vec3_t* vOrigin;
+    centity_t* cEntity;
+    gentity_s* gEntity;
+    playerState_s* playerState;
+    clientSession_t* clientSession;
+
+public:
+    Player(int clientNum);
+    unsigned int GetWeaponID();
+    WeaponDef* GetWeaponDef();
+    unsigned short GetTeam();
+    bool IsOnGround();
+    bool IsOnLadder();
+    bool IsAlive();
+    bool IsValid();
+};

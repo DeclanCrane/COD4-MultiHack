@@ -3,27 +3,20 @@
 #include "Structs.h"
 #include "COD4Structs.h"
 
-// Not really useful for anything right now
-// Just returns the same number it seems
-extern int numOfEntities;
-
-// The amount of clients currently playing ( including local player )
-extern int numClients;
-
-// Entity List Address ( For getting players, nothing else it seems )
+// gentity_s array
 extern int pGEntities;
 
 // centity_t array
-extern int cEntitiesArray;
+extern int pCEntities;
+
+// clSnapshot_t
+extern int pCLSnapshot;
 
 // Base address for the Dynamic Entity List
 extern int pDynamicEntBase;
 
 // Table of all WeaponInfo
 extern int pWeaponInfoBase;
-
-// Address of GetTagPos function
-extern int pGetTagPos;
 
 // Dynamic Entity List Address ( Holds entities such as; C4, Vehicles, Weapons, Dead Bodies, etc.)
 extern DynamicEntityList* pDynamicEntList;
@@ -46,9 +39,6 @@ extern CG_s* pCG;
 
 typedef void(__cdecl *CGTrace)(CTrace* pTrace, vec3_t StartPos, vec3_t EndPos, vec3_t Min, vec3_t Max, int skipNum, DWORD dwTraceFlags);
 extern CGTrace fnCGTrace;
-
-typedef int(__cdecl* _BG_GetWeaponIndexForName)(const char* gunName);
-extern _BG_GetWeaponIndexForName BG_GetWeaponIndexForName;
 
 typedef int(__fastcall* SendServerCommand)(int clientId, const char* cmd);
 extern SendServerCommand fnSendServerCommand;
@@ -74,24 +64,12 @@ extern _Com_PrintWarning Com_PrintWarning;
 typedef float(__cdecl* GetDistance)(vec3_t src, vec3_t dst);
 extern GetDistance fnGetDistance;
 
-typedef WORD(__cdecl* RegisterTag)(const char* tagName, int always1, int sizeOfTagName);
-extern RegisterTag fnRegisterTag;
-
-typedef void(__cdecl* _CG_OutOfAmmoChange)(int localClientNum);
-extern _CG_OutOfAmmoChange CG_OutOfAmmoChange;
-
 typedef void(__cdecl* _CG_SelectWeaponIndex)(int localClientNum, unsigned int weaponIndex);
 extern _CG_SelectWeaponIndex CG_SelectWeaponIndex;
 
 // Int* should be replaced with gentity_s*
 typedef int* (__cdecl* _Scr_GetEntity)(unsigned int index);
 extern _Scr_GetEntity Scr_GetEntity;
-
-typedef void(__cdecl* _FireWeapon)(int* gEnt, int gameTime);
-extern _FireWeapon FireWeapon;
-
-typedef int(__cdecl* _FireWeaponMelee)(int* gEnt, int gameTime);
-extern _FireWeaponMelee FireWeaponMelee;
 
 // Not working for some reason.
 typedef int(__cdecl* _OnSameTeam)(int* gEnt, int* gEnt2);
@@ -109,19 +87,8 @@ extern _CG_DObjGetWorldTagPos CG_DObjGetWorldTagPos;
 typedef int(__cdecl* _SV_GetUserCmd)(int clientNum);
 extern _SV_GetUserCmd SV_GetUserCmd;
 
-typedef void(__cdecl* _TeleportPlayer)(Entity* gEnt, vec3_t origin, vec3_t angles);
-extern _TeleportPlayer TeleportPlayer;
-
-typedef void(__cdecl* _SetPlayerViewAngles)(Entity* gEnt, vec3_t angles);
-extern _SetPlayerViewAngles SetPlayerViewAngles;
-
 typedef void(__cdecl* _GetNameFromClientNum)(int clientNum, char* outClientName);
 extern _GetNameFromClientNum GetNameFromClientNum;
-
-// Changes other player's view angles.
-// Does not work on local client
-typedef void(__cdecl* _SetClientViewAngle)(int* gEnt, const vec3_t angles);
-extern _SetClientViewAngle SetClientViewAngle;
 
 // Kind of useless...
 // Just returns the player's real rank

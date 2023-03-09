@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\COD4">
+      <UniqueIdentifier>{ec8863db-90be-4ebf-af45-43fe2d300274}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Structs.h">
@@ -36,16 +39,31 @@
     <ClInclude Include="NullSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="COD4Structs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="COD4A_PDBLoaded.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Aimbot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="COD4Constants.h">
+      <Filter>Header Files\COD4</Filter>
+    </ClInclude>
     <ClInclude Include="COD4Enums.h">
+      <Filter>Header Files\COD4</Filter>
+    </ClInclude>
+    <ClInclude Include="COD4A_PDBLoaded.h">
+      <Filter>Header Files\COD4</Filter>
+    </ClInclude>
+    <ClInclude Include="COD4Functions.h">
+      <Filter>Header Files\COD4</Filter>
+    </ClInclude>
+    <ClInclude Include="COD4Structs.h">
+      <Filter>Header Files\COD4</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -69,6 +87,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Aimbot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="COD4Functions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Hack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Vec.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

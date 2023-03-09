@@ -1,29 +1,35 @@
 #include "Aimbot.h"
 
+unsigned short headBone = RegisterTag("j_head", 1, 7);
+
 void DoAimbot(Entity* pBestTarget)
 {
-	// Get the aim position ( Should be a bone )
-	vec3_t vAimPos = {pBestTarget->vOrigin[0], pBestTarget->vOrigin[1], pBestTarget->vOrigin[2] + 55.f };
 
-	vec3_t vAngles = {};
+	// Check if visible and valid
+	if(!IsTargetVisible(headBone, (centity_t*)0x08474B4) || !IsTargetValid((int*)0x08474B4))
+		return;
+
+	// Get the bone we want
+	vec3_t vAimPos;
+	AimTarget_GetTagPos(headBone, (centity_t*)0x08474B4, &vAimPos);
+
+	vec3_t vAngles;
 	GetAngleToTarget(vAimPos, pRefDef->vCameraPos, vAngles);
 
 	// Get Delta Angles
-	vec2_t delta = {};
-	delta[0] = vAngles[1] - pPlayerState->vViewAngles[0]; // X
-	delta[1] = vAngles[0] - pPlayerState->vViewAngles[1]; // Y
+	vec3_t delta = vAngles - pPlayerState->vViewAngles;
 
-	pViewAngles->vViewAngles[0] += delta[0];
-	pViewAngles->vViewAngles[1] += delta[1];
+	pViewAngles->vViewAngles.x += (delta.x * 0.4);
+	pViewAngles->vViewAngles.y += (delta.y * 0.4);
+
+	// Fire gun
+	FireWeapon((gentity_s*)0x1280500, game.GetServerTime() + 1);
 }
 
 void GetAngleToTarget(vec3_t& vTargetPos, vec3_t& vCameraPos, vec3_t& vAngles)
 {
-	vec3_t vDelta = {};
-	vDelta[0] = vTargetPos[0] - vCameraPos[0];
-	vDelta[1] = vTargetPos[1] - vCameraPos[1];
-	vDelta[2] = vTargetPos[2] - vCameraPos[2];
-
+	vec3_t vDelta;
+	vDelta = vTargetPos - vCameraPos;
 	VectorAngles(vDelta, vAngles);
 }
 
@@ -31,27 +37,39 @@ void VectorAngles(const vec3_t& forward, vec3_t& angles)
 {
 	float tmp, yaw, pitch;
 
-	if (forward[1] == 0 && forward[0] == 0)
+	if (forward.y == 0.f && forward.x == 0.f)
 	{
-		yaw = 0;
-		if (forward[2] > 0)
-			pitch = 270;
+		yaw = 0.f;
+		if (forward.z > 0.f)
+			pitch = 270.f;
 		else
-			pitch = 90;
+			pitch = 90.f;
 	}
 	else
 	{
-		yaw = (atan2f(forward[1], forward[0]) * 180.0 / M_PI);
-		if (yaw < 0)
-			yaw += 360;
+		yaw = (atan2f(forward.y, forward.x) * 180.f / M_PI);
+		if (yaw < 0.f)
+			yaw += 360.f;
 
-		tmp = sqrtf(forward[0] * forward[0] + forward[1] * forward[1]);
-		pitch = (atan2f(-forward[2], tmp) * 180.0 / M_PI);
-		if (pitch < 0)
-			pitch += 360;
+		tmp = sqrtf(forward.x * forward.x + forward.y * forward.y);
+		pitch = (atan2f(-forward.z, tmp) * 180.f / M_PI);
+		if (pitch < 0.f)
+			pitch += 360.f;
 	}
 
-	angles[0] = yaw;
-	angles[1] = pitch;
-	angles[2] = 0; // roll
+	angles.x = yaw;
+	angles.y = pitch;
+	angles.z = 0.f; // roll
+}
+
+int GetBestTarget()
+{
+	int bestIndex = -1;
+	int secondBest = -1;
+
+	for (int i = 0; i < game.players.size(); i++) {
+
+	}
+
+	return 0;
 }

@@ -42,21 +42,21 @@ void Drawing_t::DrawLine(int x1, int y1, int x2, int y2, int thickness, D3DCOLOR
 
 void Drawing_t::DrawLine(vec2_t src, vec2_t dst, int thickness, D3DCOLOR color)
 {
-	DrawLine(src[0], src[1], dst[0], dst[1], thickness, color);
+	DrawLine(src.x, src.y, dst.x, dst.y, thickness, color);
 }
 
 void Drawing_t::DrawEspBox2D(vec2_t top, vec2_t bottom, int thickness, D3DCOLOR color)
 {
-	int height = ABS(top[1] - bottom[1]);
+	int height = ABS(top.y - bottom.y);
 	vec2_t topLeft, topRight;
-	topLeft[0] = top[0] - height / 4;
-	topRight[0] = top[0] + height / 4;
-	topLeft[1] = topRight[1] = top[1];
+	topLeft.x = top.x - height / 4;
+	topRight.x = top.x + height / 4;
+	topLeft.y = topRight.y = top.y;
 
 	vec2_t bottomLeft, bottomRight;
-	bottomLeft[0] = bottom[0] - height / 4;
-	bottomRight[0] = bottom[0] + height / 4;
-	bottomLeft[1] = bottomRight[1] = bottom[1];
+	bottomLeft.x = bottom.x - height / 4;
+	bottomRight.x = bottom.x + height / 4;
+	bottomLeft.y = bottomRight.y = bottom.y;
 
 	DrawLine(topLeft, topRight, thickness, color);
 	DrawLine(bottomLeft, bottomRight, thickness, color);
@@ -83,26 +83,26 @@ void Drawing_t::DrawFont(const char* text, float x, float y, D3DCOLOR color)
 
 bool Drawing_t::WorldToScreen(vec3_t world, vec2_t& screen, RefDef* refdef)
 {
-	vec3_t Position = {};
-	VectorSubtract(world, refdef->vCameraPos, Position);
-	vec3_t Transform = {};
+	vec3_t Position;
+	Position = world - refdef->vCameraPos;
+	vec3_t Transform;
 
 	// Get our dot products from viewMatrix
-	Transform[0] = DotProduct(Position, refdef->mViewMatrix[1]);
-	Transform[1] = DotProduct(Position, refdef->mViewMatrix[2]);
-	Transform[2] = DotProduct(Position, refdef->mViewMatrix[0]);
+	Transform.x = Position.DotProduct(refdef->mViewMatrix[1]);
+	Transform.y = Position.DotProduct(refdef->mViewMatrix[2]);
+	Transform.z = Position.DotProduct(refdef->mViewMatrix[0]);
 
 
 	// Make sure it is in front of us
-	if (Transform[2] < 0.01f)
+	if (Transform.z < 0.01f)
 		return false;
 
 	// Get the center of the screen
-	vec2_t CenterScreen = {};
-	CenterScreen[0] = refdef->width / 2.f;
-	CenterScreen[1] = refdef->height / 2.f;
+	vec2_t CenterScreen;
+	CenterScreen.x = refdef->width / 2.f;
+	CenterScreen.y = refdef->height / 2.f;
 
-	screen[0] = CenterScreen[0] * (1 - (Transform[0] / refdef->tanHalfFovX / Transform[2]));
-	screen[1] = CenterScreen[1] * (1 - (Transform[1] / refdef->tanHalfFovY / Transform[2]));
+	screen.x = CenterScreen.x * (1 - (Transform.x / refdef->tanHalfFovX / Transform.z));
+	screen.y = CenterScreen.y * (1 - (Transform.y / refdef->tanHalfFovY / Transform.z));
 	return true;
 }
