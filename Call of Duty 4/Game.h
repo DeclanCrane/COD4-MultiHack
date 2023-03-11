@@ -22,6 +22,7 @@ public:
 	void GetPlayerList();
 	bool HasPlayerListUpdated();
 	int GetServerTime();
+	int GetLocalClientNum();
 };
 
-static Game game;
+extern Game game;

@@ -1,5 +1,7 @@
 #include "Game.h"
 
+Game game;
+
 Game::Game()
 {
 	this->clSnapshot = (clSnapshot_t*)pCLSnapshot;
@@ -30,21 +32,17 @@ int Game::GetNumClients()
 
 void Game::GetPlayerList()
 {
-	// In the event a player leaves or gets kicked from the game, they're skipped in the array
-	// So you must check down the list for an active player
-
-	// Clears player list for updating
 	players.clear();
 
-	int numClients = GetNumClients();
+	int numClients = game.GetNumClients();
 
 	for (int i = 0; i < MAX_PLAYERS; i++) {
 		Player currentPlayer(i);
 		if (currentPlayer.IsValid())
 			this->players.push_back(currentPlayer);
 
-		// If we've gotten all the players
-		if (this->players.size() == numClients)
+		// If we found them all
+		if (players.size() == numClients)
 			break;
 	}
 }
@@ -62,6 +60,11 @@ bool Game::HasPlayerListUpdated()
 int Game::GetServerTime()
 {
 	return clSnapshot->serverTime;
+}
+
+int Game::GetLocalClientNum()
+{
+	return CG->localClientNum;
 }
 
 //void Game::GetGameType(char* gameType)

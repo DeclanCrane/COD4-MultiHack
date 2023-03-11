@@ -179,6 +179,7 @@
     <ClInclude Include="Offsets.h" />
     <ClInclude Include="Structs.h" />
     <ClInclude Include="Vec.h" />
+    <ClInclude Include="Wall.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Aimbot.cpp" />
@@ -192,6 +193,7 @@
     <ClCompile Include="Hack.cpp" />
     <ClCompile Include="Offsets.cpp" />
     <ClCompile Include="Vec.cpp" />
+    <ClCompile Include="Wall.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

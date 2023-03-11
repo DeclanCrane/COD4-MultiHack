@@ -45,5 +45,5 @@ public:
     bool IsOnGround();
     bool IsOnLadder();
     bool IsAlive();
-    bool IsValid();
+    bool IsValid(); // Should implement more checks
 };

@@ -2,11 +2,11 @@
 
 unsigned short headBone = RegisterTag("j_head", 1, 7);
 
-void DoAimbot(Entity* pBestTarget)
+void DoAimbot()
 {
 
 	// Check if visible and valid
-	if(!IsTargetVisible(headBone, (centity_t*)0x08474B4) || !IsTargetValid((int*)0x08474B4))
+	if(!IsTargetVisible(headBone, game.players[1].cEntity) || !IsTargetValid(game.players[1].cEntity))
 		return;
 
 	// Get the bone we want
@@ -17,10 +17,12 @@ void DoAimbot(Entity* pBestTarget)
 	GetAngleToTarget(vAimPos, pRefDef->vCameraPos, vAngles);
 
 	// Get Delta Angles
-	vec3_t delta = vAngles - pPlayerState->vViewAngles;
+	vec2_t delta;
+	delta.x = vAngles.y - pPlayerState->vViewAngles.x;
+	delta.y = vAngles.x - pPlayerState->vViewAngles.y;
 
-	pViewAngles->vViewAngles.x += (delta.x * 0.4);
-	pViewAngles->vViewAngles.y += (delta.y * 0.4);
+	pViewAngles->vViewAngles.x += delta.x;
+	pViewAngles->vViewAngles.y += delta.y;
 
 	// Fire gun
 	FireWeapon((gentity_s*)0x1280500, game.GetServerTime() + 1);
@@ -64,12 +66,35 @@ void VectorAngles(const vec3_t& forward, vec3_t& angles)
 
 int GetBestTarget()
 {
+	float closestPlayer = 0.f;
 	int bestIndex = -1;
-	int secondBest = -1;
+	std::cout << "Players: " << game.players.size() << "\n";
 
 	for (int i = 0; i < game.players.size(); i++) {
+		// Make sure they're not the local player ( us )
+		if (game.players[i].clientNum == game.GetLocalClientNum())
+			continue;
 
+		// Make sure they're alive and valid
+		if (!game.players[i].IsAlive() || !game.players[i].IsValid())
+			continue;
+
+		// Check how close they are to local player ( us )
+		float distance;
+		distance = game.players[game.GetLocalClientNum()].vOrigin->GetDistance(*game.players[i].vOrigin);
+
+		// If the closest player isn't set, set the first distance
+		if (closestPlayer == 0.f) {
+			closestPlayer = distance;
+			bestIndex = i;
+			continue;
+		}
+
+		if (distance < closestPlayer) {
+			closestPlayer = distance;
+			bestIndex = i;
+		}
 	}
 
-	return 0;
+	return bestIndex;
 }

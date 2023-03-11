@@ -15,7 +15,7 @@ void AimTarget_GetTagPos(unsigned short tagName, centity_t* centity, vec3_t* ori
 	Checks if the entity is valid.
 	( Unsure what is considered valid. Needs more testing )
 */
-bool IsTargetValid(int* cEnt);
+bool IsTargetValid(centity_t* cEnt);
 
 /*
 	Checks if entity is visible to local player.

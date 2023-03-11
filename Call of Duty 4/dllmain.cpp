@@ -14,6 +14,7 @@
 #include "COD4Functions.h"
 #include "Hack.h"
 #include "Vec.h"
+#include "Wall.h"
 
 #include <iomanip>
 
@@ -28,19 +29,19 @@ tRenderScene oRenderScene;
 typedef void(__cdecl* _ClientEndFrame)(int unknown);
 _ClientEndFrame ClientEndFrame;
 
-bool IsTargetValid(int* cEnt) {
-    DWORD dwFunc = 0x403360;
-    DWORD cg_s = 0x746338;
-    bool bValid = false;
-
-    __asm {
-        mov eax, cEnt;
-        mov ecx, cg_s;
-        call dwFunc;
-        mov bValid, al;
-    }
-    return bValid;
-}
+//bool IsTargetValid(centity_t* cEnt) {
+//    DWORD dwFunc = 0x403360;
+//    DWORD cg_s = 0x746338;
+//    bool bValid = false;
+//
+//    __asm {
+//        mov eax, cEnt;
+//        mov ecx, cg_s;
+//        call dwFunc;
+//        mov bValid, al;
+//    }
+//    return bValid;
+//}
 
 int GetTagPos_0(unsigned short TagName, int* Entity, vec3_t* Origin)
 {
@@ -187,9 +188,9 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
         Drawing.pDevice = pDevice;
         bGotDraw = true;
     }
-    GetPlayers(Entities);
-    for (int i = 1; i < Entities.size(); i++) { // Set i to 1, skips our own player
-        Wall(Entities[i], pRefDef);
+
+    for (int i = 1; i < game.players.size(); i++) { // Set i to 1, skips our own player
+        ESP(game.players[i]);
     }
 
     //GetDynamicEntities(DynEntities);
@@ -199,13 +200,11 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
 
     if (GetAsyncKeyState(VK_DOWN) & 0x01) {
         bool bCheckForVisible = false;
-        if (Entities[1] != nullptr) {
-            //if (IsVisible(Entities[1]->CameraPos, 0.f) || !bCheckForVisible) {
-            //    DoAimbot(Entities[1]);
-            //}
-            DoAimbot(Entities[1]);
-            Sleep(1); // Prevents jitter?
-        }
+        //if (IsVisible(Entities[1]->CameraPos, 0.f) || !bCheckForVisible) {
+        //    DoAimbot(Entities[1]);
+        //}
+        DoAimbot();
+        Sleep(1); // Prevents jitter?
     }
 
     if (GetAsyncKeyState(VK_LEFT) & 0x01) {
@@ -287,26 +286,6 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
         //std::cout << "Gametype: " << game.gameType << "\n";
         //std::cout << "Mapname: " << game.mapName << "\n";
         //game.GetPlayerList();
-    }
-
-    if (GetAsyncKeyState(VK_NUMPAD0) & 0x01) {
-        std::cout << "Size of Vec3: " << sizeof(vec3_t) << std::endl;
-        vec3_t x(1.f, 1.f, 1.f);
-        vec3_t y(2.f, 4.f, 6.f);
-        //Vec3 out = y - x;
-        //std::cout << "X: " << out.x << " " << "Y: " << out.y << " " << "Z: " << out.z << "\n";
-        double dot = x.DotProduct(y);
-        float blah = 12.2131;
-        std::cout << "Dot: " << std::setprecision(6) << dot << "\n";
-        vec3_t z = { 1.f, 1.f, 1.f };
-        vec3_t e = { 2.f, 4.f, 6.f };
-    }
-
-    if (GetAsyncKeyState(VK_UP) & 0x01) {
-        //int result = Com_PrintWarning(17, "Warning: Hello, World!", 0);
-        //std::cout << result << std::endl;
-
-        ClientDisconnect(1);
     }
 
     if (GetAsyncKeyState(VK_F1) & 0x01) {
