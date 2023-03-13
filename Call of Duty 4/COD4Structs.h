@@ -377,6 +377,15 @@ typedef struct WeaponDef
 	float hipDofEnd;
 } WeaponDef;
 
+typedef struct WeaponParms {
+	vec3_t forward;
+	vec3_t right;
+	vec3_t up;
+	vec3_t muzzleTrace;
+	vec3_t gunForward;
+	WeaponDef* weaponDef;
+};
+
 typedef struct RefDef
 {
 	int32_t x; //0x0000
@@ -1131,6 +1140,29 @@ struct trace_t
 	char* material;
 	TraceHitType hitType;
 	unsigned char szUnknown0[264];
+};
+
+typedef struct BulletTraceResults 
+{
+	trace_t trace;
+	int* hitEnt;
+	vec3_t hitPos;
+	int8_t ignoreHitEnt;
+	int8_t zJunk;
+	int8_t zJunk1;
+	int8_t zJunk2;
+};
+
+typedef struct BulletFireParams
+{
+	int weaponEntIndex;
+	int ignoreEntindex;
+	float damageMultiplier;
+	int methodOfDeath;
+	vec3_t origStart;
+	vec3_t start;
+	vec3_t end;
+	vec3_t dir;
 };
 
 struct clSnapshot_t

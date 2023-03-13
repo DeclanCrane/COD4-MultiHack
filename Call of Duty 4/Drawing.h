@@ -29,8 +29,6 @@ public:
 	void DrawEspBox2D(vec2_t top, vec2_t bottom, int thickness, D3DCOLOR color);
 
 	void DrawFont(const char* text, float x, float y, D3DCOLOR color);
-
-	bool WorldToScreen(vec3_t world, vec2_t& screen, RefDef* refdef);
 };
 
 extern Drawing_t Drawing;

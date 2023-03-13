@@ -2,16 +2,16 @@
 
 unsigned short headBone = RegisterTag("j_head", 1, 7);
 
-void DoAimbot()
+void DoAimbot(int target)
 {
 
 	// Check if visible and valid
-	if(!IsTargetVisible(headBone, game.players[1].cEntity) || !IsTargetValid(game.players[1].cEntity))
+	if(/*!IsTargetVisible(headBone, game.players[target].cEntity) || */!IsTargetValid(game.players[target].cEntity))
 		return;
 
 	// Get the bone we want
 	vec3_t vAimPos;
-	AimTarget_GetTagPos(headBone, (centity_t*)0x08474B4, &vAimPos);
+	AimTarget_GetTagPos(headBone, game.players[target].cEntity, &vAimPos);
 
 	vec3_t vAngles;
 	GetAngleToTarget(vAimPos, pRefDef->vCameraPos, vAngles);
@@ -25,7 +25,12 @@ void DoAimbot()
 	pViewAngles->vViewAngles.y += delta.y;
 
 	// Fire gun
-	FireWeapon((gentity_s*)0x1280500, game.GetServerTime() + 1);
+	if (hack.bKnifeAimbot) {
+		FireWeaponMelee((int*)0x1280500, game.GetServerTime() + 1);
+	}
+	else {
+		FireWeapon((gentity_s*)0x1280500, game.GetServerTime() + 1); // Change this to local player
+	}
 }
 
 void GetAngleToTarget(vec3_t& vTargetPos, vec3_t& vCameraPos, vec3_t& vAngles)
@@ -68,7 +73,6 @@ int GetBestTarget()
 {
 	float closestPlayer = 0.f;
 	int bestIndex = -1;
-	std::cout << "Players: " << game.players.size() << "\n";
 
 	for (int i = 0; i < game.players.size(); i++) {
 		// Make sure they're not the local player ( us )
@@ -76,8 +80,14 @@ int GetBestTarget()
 			continue;
 
 		// Make sure they're alive and valid
-		if (!game.players[i].IsAlive() || !game.players[i].IsValid())
+		if (!game.players[i].IsAlive() || !IsTargetValid(game.players[i].cEntity))
 			continue;
+
+		// Make sure they're visible
+		if (!hack.bRage) {
+			if (!IsTargetVisible(headBone, game.players[i].cEntity))
+				continue;
+		}
 
 		// Check how close they are to local player ( us )
 		float distance;

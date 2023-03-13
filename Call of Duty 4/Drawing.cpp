@@ -80,29 +80,3 @@ void Drawing_t::DrawFont(const char* text, float x, float y, D3DCOLOR color)
 	SetRect(&rect, x, y, x, y);
 	font->DrawTextA(NULL, text, -1, &rect, DT_CENTER | DT_NOCLIP, color);
 }
-
-bool Drawing_t::WorldToScreen(vec3_t world, vec2_t& screen, RefDef* refdef)
-{
-	vec3_t Position;
-	Position = world - refdef->vCameraPos;
-	vec3_t Transform;
-
-	// Get our dot products from viewMatrix
-	Transform.x = Position.DotProduct(refdef->mViewMatrix[1]);
-	Transform.y = Position.DotProduct(refdef->mViewMatrix[2]);
-	Transform.z = Position.DotProduct(refdef->mViewMatrix[0]);
-
-
-	// Make sure it is in front of us
-	if (Transform.z < 0.01f)
-		return false;
-
-	// Get the center of the screen
-	vec2_t CenterScreen;
-	CenterScreen.x = refdef->width / 2.f;
-	CenterScreen.y = refdef->height / 2.f;
-
-	screen.x = CenterScreen.x * (1 - (Transform.x / refdef->tanHalfFovX / Transform.z));
-	screen.y = CenterScreen.y * (1 - (Transform.y / refdef->tanHalfFovY / Transform.z));
-	return true;
-}

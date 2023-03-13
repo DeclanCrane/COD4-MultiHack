@@ -202,8 +202,6 @@ bool Player::IsOnLadder()
 
 bool Player::IsAlive()
 {
-    if (gEntity->client == nullptr)
-        return false;
     if (gEntity->client->clientSession.sessionState_t != SESS_STATE_PLAYING)
         return false;
     return true;

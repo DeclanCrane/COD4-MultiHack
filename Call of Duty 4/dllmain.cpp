@@ -18,7 +18,6 @@
 
 #include <iomanip>
 
-//cgs_t* pCGs = (cgs_t*)0x0742908;
 //clientActive_t* clientActive = (clientActive_t*)0xC57930;
 dvar_s* svCheats = (dvar_s*)0xCBA3808;
 
@@ -28,31 +27,6 @@ tRenderScene oRenderScene;
 
 typedef void(__cdecl* _ClientEndFrame)(int unknown);
 _ClientEndFrame ClientEndFrame;
-
-//bool IsTargetValid(centity_t* cEnt) {
-//    DWORD dwFunc = 0x403360;
-//    DWORD cg_s = 0x746338;
-//    bool bValid = false;
-//
-//    __asm {
-//        mov eax, cEnt;
-//        mov ecx, cg_s;
-//        call dwFunc;
-//        mov bValid, al;
-//    }
-//    return bValid;
-//}
-
-int GetTagPos_0(unsigned short TagName, int* Entity, vec3_t* Origin)
-{
-    _asm push Origin
-    _asm movzx esi, TagName
-    _asm mov ecx, Entity
-    _asm movzx eax, byte ptr[ecx + 4]
-        _asm mov edi, 0x403180
-    _asm call edi
-    _asm add esp, 0x4
-}
 
 void __cdecl newClientEndFrame(int unknown) {
     if (GetAsyncKeyState(VK_NUMPAD1) & 0x01) {
@@ -112,7 +86,7 @@ void FillClip(int* playerState, int weapon) {
     }
 }
 
-bool IsVisible(vec3_t v3EndPos, float nHeight)
+bool TraceIsVisible(vec3_t v3EndPos, float nHeight)
 {
     CTrace mTrace;
     v3EndPos.z += nHeight;
@@ -121,56 +95,32 @@ bool IsVisible(vec3_t v3EndPos, float nHeight)
     return(mTrace.Fraction == 1.0f);
 }
 
-void Wall(Entity* pEntity, RefDef* refdef)
-{
-    //if (!IsVisible(pEntity->CameraPos, 0.f))
-    //    return;
-
-    if (pEntity->bAlive) { // If enemy is alive
-
-        vec2_t enemyScreenPos;
-        vec2_t enemyHead2D;
-
-        if (Drawing.WorldToScreen(pEntity->vOrigin, enemyScreenPos, refdef)) {
-            // Top of box
-            vec3_t vHeadOrigin;
-            vHeadOrigin.x = pEntity->vOrigin.x;
-            vHeadOrigin.y = pEntity->vOrigin.y;
-            vHeadOrigin.z = pEntity->vOrigin.z + 65.f; // Height of Zombie / Bot
-
-            if (Drawing.WorldToScreen(vHeadOrigin, enemyHead2D, refdef)) {
-                    Drawing.DrawEspBox2D(enemyScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(1 * 255), int(0 * 255), int(0 * 255)));
-            }
-        }
-    }
-}
-
-void Wall(DynamicEntity* pEntity, RefDef* refdef)
-{
-
-        vec2_t enemyScreenPos;
-        vec2_t enemyHead2D;
-
-        if (Drawing.WorldToScreen(pEntity->vOrigin, enemyScreenPos, refdef)) {
-
-            // Line ESP
-            if (true)
-            {
-                Drawing.DrawLine(enemyScreenPos.x, enemyScreenPos.y, refdef->width / 2, refdef->height, 1,
-                    D3DCOLOR_ARGB(255, int(0 * 255), int(1 * 255), int(0 * 255)));
-            }
-
-            // Top of box
-            vec3_t vHeadOrigin;
-            vHeadOrigin.x = pEntity->vOrigin.x;
-            vHeadOrigin.y = pEntity->vOrigin.y;
-            vHeadOrigin.z = pEntity->vOrigin.z + 15.f; // Height of Zombie / Bot
-
-            if (Drawing.WorldToScreen(vHeadOrigin, enemyHead2D, refdef)) {
-                Drawing.DrawEspBox2D(enemyScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(1 * 255), int(0 * 255), int(0 * 255)));
-            }
-        }
-}
+//void WallDynEntity(DynamicEntity* pEntity, RefDef* refdef)
+//{
+//
+//        vec2_t enemyScreenPos;
+//        vec2_t enemyHead2D;
+//
+//        if (Drawing.WorldToScreen(pEntity->vOrigin, enemyScreenPos, refdef)) {
+//
+//            // Line ESP
+//            if (true)
+//            {
+//                Drawing.DrawLine(enemyScreenPos.x, enemyScreenPos.y, refdef->width / 2, refdef->height, 1,
+//                    D3DCOLOR_ARGB(255, int(0 * 255), int(1 * 255), int(0 * 255)));
+//            }
+//
+//            // Top of box
+//            vec3_t vHeadOrigin;
+//            vHeadOrigin.x = pEntity->vOrigin.x;
+//            vHeadOrigin.y = pEntity->vOrigin.y;
+//            vHeadOrigin.z = pEntity->vOrigin.z + 15.f; // Height of Zombie / Bot
+//
+//            if (Drawing.WorldToScreen(vHeadOrigin, enemyHead2D, refdef)) {
+//                Drawing.DrawEspBox2D(enemyScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(1 * 255), int(0 * 255), int(0 * 255)));
+//            }
+//        }
+//}
 
 D3D9Hook Hook;
 std::vector<Entity*> Entities = {};
@@ -198,12 +148,10 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
     //    Wall(DynEntities[i], pRefDef);
     //}
 
-    if (GetAsyncKeyState(VK_DOWN) & 0x01) {
-        bool bCheckForVisible = false;
-        //if (IsVisible(Entities[1]->CameraPos, 0.f) || !bCheckForVisible) {
-        //    DoAimbot(Entities[1]);
-        //}
-        DoAimbot();
+    if (GetAsyncKeyState('X') & 0x01) {
+        int bestTarget = GetBestTarget();
+        if (bestTarget > 0) // If there's a valid target
+            DoAimbot(bestTarget);
         Sleep(1); // Prevents jitter?
     }
 
@@ -269,25 +217,6 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
         FireWeapon((gentity_s*)0x1280500, game.GetServerTime());
     }
 
-    if (GetAsyncKeyState(VK_RIGHT) & 0x01) {
-        //FireWeaponMelee((int*)0x1280500, (pCLSnapshot->serverTime + 1));
-        //FireWeapon((int*)0x1280500, (pCLSnapshot->serverTime + 1));
-
-        // NOT WORKING
-        //vec3_t bonePos = {};
-        //void* magic = 0;
-        //headBone = fnRegisterTag("j_head", 1, 7);
-        //int clientNum = *(int*)(0x08474B4 + 0xCC); // Get the players client number
-        //GetTagPos((void*)0x08474B4, headBone, bonePos);
-        //std::cout << "X: " << bonePos[0] << " " << "Y: " << bonePos[1] << " " << "Z: " << bonePos[2] << "\n";
-
-        //std::cout << "Bone: " << *(unsigned short*)0x13FEE98 << std::endl;
-
-        //std::cout << "Gametype: " << game.gameType << "\n";
-        //std::cout << "Mapname: " << game.mapName << "\n";
-        //game.GetPlayerList();
-    }
-
     if (GetAsyncKeyState(VK_F1) & 0x01) {
         std::cout << "Weapon: " << pPlayerState->weapon << "\n";
         WeaponDef* currentWeapon = nullptr;
@@ -323,15 +252,67 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
             currentWeapon->fHipViewKickYawMax = 0.f;
         }
 
-        std::cout << "Mapname: " << pCGs->mapname << "\n";
-
         svCheats->current.integer = 1;
+
     }
 
-    //headBone = fnRegisterTag("j_head", 1, 7);
-    //vec3_t bonePos = {};
-    //GetTagPos_0(headBone, (int*)(0x08474B4), &bonePos);
-    //std::cout << "X: " << bonePos[0] << " " << "Y: " << bonePos[1] << " " << "Z: " << bonePos[2] << "\n";
+    if (GetAsyncKeyState(VK_NUMPAD2) & 0x01) {
+        //WeaponDef* weapDef = game.players[0].GetWeaponDef();
+        //WeaponParms parms;
+        //vec3_t zero;
+        //parms.forward = zero;
+        //parms.right = zero;
+        //parms.up = zero;
+        //parms.muzzleTrace = zero;
+        //parms.gunForward = zero;
+        //parms.weaponDef = weapDef;
+        //Weapon_Melee((gentity_s*)0x1280500, &parms, 2000.f, 2000.f, 2000.f, game.GetServerTime() + 1);
+
+        vec3_t forward;
+        vec3_t mins;
+        vec3_t maxs;
+        //G_GetPlayerViewOrigin((int*)0x131D5A8, &forward);
+        //WeaponDef* def = game.players[0].GetWeaponDef();
+        //char* name = nullptr;
+        //NameFromNum(0, name);
+        //std::cout << "Name: " << name << "\n";
+        //std::cout << "X: " << maxs.x << " " << "Y: " << maxs.y << " " << "Z: " << maxs.z << "\n";
+
+        //CG_CalcEyePoint(0, &mins);
+        //std::cout << "X: " << mins.x << " " << "Y: " << mins.y << " " << "Z: " << mins.z << "\n";
+        // 
+        //const char* name = "HelloWorld";
+        //CreateProfile(name);
+
+        WeaponParms weapParms = {};
+
+        weapParms.weaponDef = game.players[0].GetWeaponDef();
+        CalcMuzzlePointsASM(&weapParms, game.players[0].gEntity, game.players[0].GetWeaponDef());
+        std::cout << "X: " << weapParms.forward.x << " " << "Y: " << weapParms.forward.y << " " << "Z: " << weapParms.forward.z << "\n";
+        //WeaponMelee(game.GetServerTime() + 1, &weapParms, game.players[0].gEntity, 5000.f, 5000.f, 5000.f);
+        //CG_FireWeapon(0, game.players[0].cEntity, 0x1A, (unsigned short)0x13FEF22, pPlayerState);
+        //CG_FireWeapon(0, game.players[0].cEntity, 0x1A, (unsigned short)0x2F0, pPlayerState);
+        /*Weapon_Throw_Grenade(&weapParms, game.players[0].gEntity, game.players[0].gEntity->entityState.weapon, game.players[0].gEntity->entityState.weaponModel);*/
+
+        vec3_t vZero(0.f, 0.f, 0.f);
+        BulletFireParams bulletParams = {};
+        bulletParams.dir = weapParms.muzzleTrace;
+        bulletParams.origStart = vZero;
+        bulletParams.start = pRefDef->vCameraPos;
+        bulletParams.end = *game.players[1].vOrigin;
+        bulletParams.damageMultiplier = 1.f;
+        bulletParams.weaponEntIndex = game.players[0].GetWeaponID();
+        bulletParams.ignoreEntindex = 0;
+        BulletTraceResults btr = {};
+
+        if (Bullet_Trace(&btr, game.players[0].GetWeaponDef(), &bulletParams, game.players[0].gEntity, 0)) {
+            std::cout << "Result: " << btr.trace.Fraction << "\n";
+            std::cout << "Hit Type: " << btr.trace.hitType << "\n";
+        }
+
+        int damage = GetBulletDamage(&btr, game.players[0].GetWeaponDef(), game.players[0].gEntity);
+        std::cout << "Damage: " << damage << "\n";
+    }
 
     // Call original endScene after detour
     return Hook.pEndScene(pDevice);
@@ -379,11 +360,6 @@ int MainThread(PVOID pModule) {
         //}
 
         Hack();
-
-        if (GetAsyncKeyState(VK_F5) & 0x01) {
-            pViewAngles->vViewAngles.x += 0.22f;
-            pViewAngles->vViewAngles.y += 0.22f;
-        }
     }
 
     // Release Engine Hooks

@@ -6,12 +6,13 @@
 #include "Offsets.h"
 #include "Vec.h"
 #include "Game.h"
+#include "Hack.h"
 
 #include <iostream>
 
 #define M_PI 3.14
 
-void DoAimbot();
+void DoAimbot(int target);
 
 // Rewrite this when you get more knowledge
 void GetAngleToTarget(vec3_t& vTargetPos, vec3_t& vCameraPos, vec3_t& vAngles);

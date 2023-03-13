@@ -9,3 +9,12 @@
 
 // Main hack function
 void Hack();
+
+class HackSettings {
+public:
+	HackSettings();
+	bool bRage;
+	bool bKnifeAimbot;
+};
+
+extern HackSettings hack;
