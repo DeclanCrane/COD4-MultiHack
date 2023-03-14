@@ -15,11 +15,15 @@
 #include "Hack.h"
 #include "Vec.h"
 #include "Wall.h"
+#include "NullHooks.h"
 
 #include <iomanip>
 
 //clientActive_t* clientActive = (clientActive_t*)0xC57930;
 dvar_s* svCheats = (dvar_s*)0xCBA3808;
+
+std::vector<byte> bytes = { 0x90, 0x90 };
+Nop reserveAmmoPatch((void*)0x4162B2, 2);
 
 // RenderScene
 typedef void(__cdecl* tRenderScene)(RefDef* rd);
@@ -300,18 +304,39 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
         bulletParams.origStart = vZero;
         bulletParams.start = pRefDef->vCameraPos;
         bulletParams.end = *game.players[1].vOrigin;
-        bulletParams.damageMultiplier = 1.f;
+        //bulletParams.damageMultiplier = 1.f;
         bulletParams.weaponEntIndex = game.players[0].GetWeaponID();
         bulletParams.ignoreEntindex = 0;
         BulletTraceResults btr = {};
 
         if (Bullet_Trace(&btr, game.players[0].GetWeaponDef(), &bulletParams, game.players[0].gEntity, 0)) {
             std::cout << "Result: " << btr.trace.Fraction << "\n";
-            std::cout << "Hit Type: " << btr.trace.hitType << "\n";
+            std::cout << "Damage Multiplier: " << bulletParams.damageMultiplier << "\n";
         }
 
-        int damage = GetBulletDamage(&btr, game.players[0].GetWeaponDef(), game.players[0].gEntity);
-        std::cout << "Damage: " << damage << "\n";
+        if (Bullet_Trace(&btr, game.players[0].GetWeaponDef(), &bulletParams, game.players[0].gEntity, btr.trace.surfaceFlags)) {
+            std::cout << "Result: " << btr.trace.Fraction << "\n";
+            std::cout << "Damage Multiplier: " << bulletParams.damageMultiplier << "\n";
+        }
+
+        /*int damage = GetBulletDamage(game.players[0].GetWeaponDef(), &bulletParams, &btr);*/
+        //int damage = BulletGetDamage(game.players[0].GetWeaponDef(), &bulletParams, &btr);
+        /*std::cout << "Damage: " << damage << "\n";*/
+
+        if (BG_AdvanceTrace(&bulletParams, &btr, 0.009999999776482582f)) {
+            std::cout << "Ayyyyy\n";
+            std::cout << "Damage: " << bulletParams.damageMultiplier << "\n";
+            std::cout << "Damage: " << btr.trace.Fraction << "\n";
+        }
+    }
+
+    if (GetAsyncKeyState(VK_NUMPAD3) & 0x01) {
+        //PrintMemory((void*)0x4162B2, 2);
+        reserveAmmoPatch.Set();
+    }
+
+    if (GetAsyncKeyState(VK_NUMPAD4) & 0x01) {
+        reserveAmmoPatch.Restore();
     }
 
     // Call original endScene after detour

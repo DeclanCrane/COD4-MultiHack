@@ -82,6 +82,12 @@ extern _BG_GetPlayerViewDirection BG_GetPlayerViewDirection;
 typedef void(__cdecl* _BG_GetPlayerViewOrigin)(playerState_s* ps, vec3_t* origin, int time);
 extern _BG_GetPlayerViewOrigin BG_GetPlayerViewOrigin;
 
+typedef int(__cdecl* _BulletGetDamage)(WeaponDef* wd, BulletFireParams* bfp, BulletTraceResults* btr);
+extern _BulletGetDamage BulletGetDamage;
+
+typedef bool(__cdecl* _BG_AdvanceTrace)(BulletFireParams* bfp, BulletTraceResults* btr, float amount);
+extern _BG_AdvanceTrace BG_AdvanceTrace;
+
 void G_GetPlayerViewOrigin(int* client, vec3_t* origin);
 
 void GetViewDirection(int* client, vec3_t* forward, vec3_t* right, vec3_t* up);
@@ -111,10 +117,8 @@ void CG_FireWeapon(int localClientNum, centity_t* cent, int eventNum, unsigned s
 
 void Weapon_Throw_Grenade(WeaponParms* wp, gentity_s* ent, int grenType, int grenModel);
 
-// Doesn't work, returns nothing
-bool BG_AdvanceTrace(BulletTraceResults* btr, BulletFireParams* bfp, float distance);
-
 // Works need to check damage though
 bool Bullet_Trace(BulletTraceResults* btr, WeaponDef* weapDef, BulletFireParams* bfp, gentity_s* attacker, int zero);
 
-int GetBulletDamage(BulletTraceResults* btr, WeaponDef* weapDef, gentity_s* attacker);
+// Doesn't seem to do much. Kind of pointless anyways.
+int GetBulletDamage(WeaponDef* weapDef, BulletFireParams* bfp, BulletTraceResults* btr);

@@ -175,6 +175,7 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Hack.h" />
+    <ClInclude Include="NullHooks.h" />
     <ClInclude Include="NullSystem.h" />
     <ClInclude Include="Offsets.h" />
     <ClInclude Include="Structs.h" />
@@ -191,6 +192,7 @@
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Hack.cpp" />
+    <ClCompile Include="NullHooks.cpp" />
     <ClCompile Include="Offsets.cpp" />
     <ClCompile Include="Vec.cpp" />
     <ClCompile Include="Wall.cpp" />

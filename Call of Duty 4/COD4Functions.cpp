@@ -10,6 +10,8 @@ _SetClientViewAngle SetClientViewAngle = (_SetClientViewAngle)0x4A5B00;
 _BG_GetWeaponIndexForName BG_GetWeaponIndexForName = (_BG_GetWeaponIndexForName)0x0415370;
 _BG_GetPlayerViewDirection BG_GetPlayerViewDirection = (_BG_GetPlayerViewDirection)0x55DAD0;
 _BG_GetPlayerViewOrigin BG_GetPlayerViewOrigin = (_BG_GetPlayerViewOrigin)0x04A5E30;
+_BulletGetDamage BulletGetDamage = (_BulletGetDamage)0x4A1E40;
+_BG_AdvanceTrace BG_AdvanceTrace = (_BG_AdvanceTrace)0x414BF0;
 
 bool CG_OnSameTeam(gentity_s* gEnt, gentity_s* gEnt2) {
     int bSameTeam = 0;
@@ -193,27 +195,12 @@ void Weapon_Throw_Grenade(WeaponParms* wp, gentity_s* ent, int grenType, int gre
     }
 }
 
-bool BG_AdvanceTrace(BulletTraceResults* btr, BulletFireParams* bfp, float distance)
-{
-    bool bReturn = false;
-    int dwFunc = 0x414BF0;
-    __asm {
-        push distance;
-        mov edx, btr;
-        mov ecx, bfp;
-        call dwFunc;
-        add esp, 0x4;
-        mov bReturn, al;
-    }
-    return bReturn;
-}
-
 bool Bullet_Trace(BulletTraceResults* btr, WeaponDef* weapDef, BulletFireParams* bfp, gentity_s* attacker, int zero)
 {
     bool bSuccess = false;
     int dwFunc = 0x4A2000;
     __asm {
-        push 0;
+        push zero;
         push attacker;
         push weapDef;
         mov eax, btr;
@@ -225,14 +212,14 @@ bool Bullet_Trace(BulletTraceResults* btr, WeaponDef* weapDef, BulletFireParams*
     return bSuccess;
 }
 
-int GetBulletDamage(BulletTraceResults* btr, WeaponDef* weapDef, gentity_s* attacker)
+int GetBulletDamage(WeaponDef* weapDef, BulletFireParams* bfp, BulletTraceResults* btr)
 {
     int damage = 0;
     int dwFunc = 0x4A1E40;
     __asm {
-        mov ebp, btr;
         mov esi, weapDef;
-        mov edi, attacker;
+        mov edi, btr;
+        mov edx, bfp;
         call dwFunc;
         mov damage, eax;
     }
