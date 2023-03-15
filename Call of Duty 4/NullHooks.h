@@ -13,7 +13,9 @@ public:
 	size_t size;
 public:
 	Patch(void* src, std::vector<byte> bytes);
+	// Write the patch
 	void Set();
+	// Restore original instruction
 	void Restore();
 };
 
