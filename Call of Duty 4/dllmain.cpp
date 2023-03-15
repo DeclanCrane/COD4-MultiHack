@@ -23,7 +23,7 @@
 dvar_s* svCheats = (dvar_s*)0xCBA3808;
 
 std::vector<byte> bytes = { 0x90, 0x90 };
-Nop reserveAmmoPatch((void*)0x4162B2, 2);
+Patch reserveAmmoPatch((void*)0x4162B2, bytes);
 
 // RenderScene
 typedef void(__cdecl* tRenderScene)(RefDef* rd);
