@@ -340,12 +340,19 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
         //std::cout << &pCG->predictedPlayerEntity.entityState.eventParam << "\n";
         //CG_EntityEvent(0, EV_STANCE_FORCE_PRONE, &pCG->predictedPlayerEntity);
 
-        int weap = CurrentPrimaryWeapon(game.players[0].playerState);
+        int weap = CurrentPrimaryWeapon(game.players[1].playerState);
         std::cout << "Current Weapon: " << weap << "\n";
+
+        gentity_s* result = Drop_Weapon(weap, game.players[1].gEntity, *game.players[1].playerState->weaponsOld[weap + 8], 0);
+        std::cout << "Drop Weapon Result: " << result << "\n";
     }
 
     if (GetAsyncKeyState(VK_NUMPAD4) & 0x01) {
-        /*reserveAmmoPatch.Restore();*/
+        /*int result = TakeAwayClipAmmo(2, CurrentPrimaryWeapon(game.players[0].playerState), game.players[0].playerState);*/
+        //int result = IsClipEmpty(game.players[0].playerState);
+        //bool result = IsPlayerFiring(game.players[0].GetWeaponDef(), game.players[0].playerState);
+        //std::cout << "FireType: " << result << "\n";
+        Fire(game.players[0].playerState, 0);
     }
 
     // Call original endScene after detour

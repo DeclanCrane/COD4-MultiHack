@@ -137,3 +137,30 @@ int Add_Ammo(gentity_s* gEnt, int weaponIndex, char weaponModel, int ammo, int f
 int CG_EntityEvent(int clientNum, entityEvents_t event, centity_t* predictedPlayerEntity);
 
 int CurrentPrimaryWeapon(playerState_s* ps);
+
+// How to use weaponModel
+// *game.players[1].playerState->weaponsOld[weap + 8]
+gentity_s* Drop_Weapon(int weaponId, gentity_s* gEnt, char weaponModel, unsigned int tag);
+
+// Doesn't work
+int WeaponPickup_Grab(gentity_s* weapEnt, gentity_s* playerEnt, int weapId, int pickupEvent);
+
+// Returns true is player is in a scoped weapon ADS
+// (e.g. Sniper scope )
+int IsScopedADS(playerState_s* ps);
+
+// Returns false is weapon is fire, or using melee
+int IsWeaponReady(playerState_s* ps);
+
+// Removes takeAwayAmmo from player's gun clip
+// Returns remaining clip ammo
+int TakeAwayClipAmmo(int takeAwayAmmo, int weaponId, playerState_s* ps);
+
+int IsClipEmpty(playerState_s* ps);
+
+// Need more reversing
+int UnknownFunc(int weaponId, playerState_s* ps, char a3);
+
+bool IsPlayerFiring(WeaponDef* weapDef, playerState_s* ps);
+
+int Reload(playerState_s* ps, int reloadType);

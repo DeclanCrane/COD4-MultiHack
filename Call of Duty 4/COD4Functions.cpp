@@ -292,6 +292,37 @@ int CurrentPrimaryWeapon(playerState_s* ps)
     return result;
 }
 
+gentity_s* Drop_Weapon(int weaponId, gentity_s* gEnt, char weaponModel, unsigned int tag)
+{
+    gentity_s* result = 0;
+    int func = 0x4B7AC0;
+    __asm {
+        mov eax, weaponId;
+        movzx ecx, tag;
+        push tag;
+        push ecx;
+        push gEnt;
+        call func;
+        mov result, eax;
+        add esp, 0xC;
+    }
+    return result;
+}
+
+int WeaponPickup_Grab(gentity_s* weapEnt, gentity_s* playerEnt, int weapId, int pickupEvent)
+{
+    int func = 0x4B6D70;
+    __asm {
+        mov ecx, weapEnt;
+        mov eax, playerEnt;
+        push weapId;
+        push pickupEvent;
+        call func;
+        add esp, 8;
+    }
+    return 0;
+}
+
 void GetPlayerNameByClientNum(int clientNum) {
     int fnGetPlayerNameByClientNum = 0x471550;
     char name[40];
@@ -366,4 +397,96 @@ void __cdecl CG_Trace(trace_t* pTrace, const vec3_t startPos, const vec3_t endPo
         call[fnCGTrace]
         add esp, 0x1C
     }
+}
+
+int IsScopedADS(playerState_s* ps)
+{
+    int result = false;
+    int func = 0x416140;
+    __asm {
+        mov eax, ps;
+        call func;
+        mov result, eax;
+    }
+    return result;
+}
+
+int IsWeaponReady(playerState_s* ps)
+{
+    int result = 0;
+    int func = 0x416170;
+    __asm {
+        mov eax, ps;
+        call func;
+        mov result, eax;
+    }
+    return result;
+}
+
+int TakeAwayClipAmmo(int takeAwayAmmo, int weaponId, playerState_s* ps)
+{
+    int result = 0;
+    int func = 0x416310;
+    __asm {
+        mov edx, takeAwayAmmo;
+        mov ecx, weaponId;
+        mov esi, ps;
+        call func;
+        mov result, eax;
+    }
+    return result;
+}
+
+int IsClipEmpty(playerState_s* ps)
+{
+    int result = 0;
+    int func = 0x416340;
+    __asm {
+        mov eax, ps;
+        call func;
+        mov result, eax;
+    }
+    return result;
+}
+
+int UnknownFunc(int weaponId, playerState_s* ps, char a3)
+{
+    int result = 0;
+    int func = 0x416840;
+    __asm {
+        mov edx, weaponId;
+        mov esi, ps;
+        push a3;
+        call func;
+        add esp, 4;
+        mov result, eax;
+    }
+    return result;
+}
+
+bool IsPlayerFiring(WeaponDef* weapDef, playerState_s* ps)
+{
+    bool result = false;
+    int func = 0x4178B0;
+    __asm {
+        mov eax, weapDef;
+        mov ecx, ps;
+        call func;
+        mov result, al;
+    }
+    return result;
+}
+
+int Reload(playerState_s* ps, int reloadType)
+{
+    int result = 0;
+    int func = 0x418270;
+    __asm {
+        push reloadType;
+        mov eax, ps;
+        call func;
+        add esp, 4;
+    }
+
+    return result;
 }
