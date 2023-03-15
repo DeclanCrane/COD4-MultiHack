@@ -135,3 +135,5 @@ int Add_Ammo(gentity_s* gEnt, int weaponIndex, char weaponModel, int ammo, int f
 // WARNING: centity_t* is not the one found in cEntitiesArray
 // Get it at pCG->predictedPlayerEntity
 int CG_EntityEvent(int clientNum, entityEvents_t event, centity_t* predictedPlayerEntity);
+
+int CurrentPrimaryWeapon(playerState_s* ps);

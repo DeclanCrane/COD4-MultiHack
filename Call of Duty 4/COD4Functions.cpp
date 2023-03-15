@@ -280,6 +280,18 @@ int CG_EntityEvent(int clientNum, entityEvents_t eventNum, centity_t* predictedP
     return 0;
 }
 
+int CurrentPrimaryWeapon(playerState_s* ps)
+{
+    int func = 0x4B67B0;
+    int result = 0;
+    __asm {
+        mov esi, ps;
+        call func;
+        mov result, eax;
+    }
+    return result;
+}
+
 void GetPlayerNameByClientNum(int clientNum) {
     int fnGetPlayerNameByClientNum = 0x471550;
     char name[40];

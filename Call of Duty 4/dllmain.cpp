@@ -337,8 +337,11 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
         //std::cout << "Ammo: " << ammo << "\n";
         //G_GivePlayerWeapon(6, game.players[0].gEntity->client, 0);
         //Add_Ammo(game.players[0].gEntity, game.players[0].GetWeaponID(), 0, 150, 1);
-        std::cout << &pCG->predictedPlayerEntity.entityState.eventParam << "\n";
-        CG_EntityEvent(0, EV_STANCE_FORCE_PRONE, &pCG->predictedPlayerEntity);
+        //std::cout << &pCG->predictedPlayerEntity.entityState.eventParam << "\n";
+        //CG_EntityEvent(0, EV_STANCE_FORCE_PRONE, &pCG->predictedPlayerEntity);
+
+        int weap = CurrentPrimaryWeapon(game.players[0].playerState);
+        std::cout << "Current Weapon: " << weap << "\n";
     }
 
     if (GetAsyncKeyState(VK_NUMPAD4) & 0x01) {
