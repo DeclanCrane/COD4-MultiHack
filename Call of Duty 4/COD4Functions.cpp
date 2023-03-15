@@ -226,6 +226,60 @@ int GetBulletDamage(WeaponDef* weapDef, BulletFireParams* bfp, BulletTraceResult
     return damage;
 }
 
+int BG_WeaponAmmo(int weaponId, playerState_s* ps)
+{
+    int totalAmmo = 0;
+    int dwFunc = 0x4161F0;
+    __asm {
+        mov eax, weaponId;
+        mov ecx, ps;
+        call dwFunc;
+        mov totalAmmo, eax;
+    }
+}
+
+int G_GivePlayerWeapon(int weaponId, gclient_s* client, unsigned char altModelIndex)
+{
+    int dwFunc = 0x4E4E40;
+    __asm {
+        mov eax, weaponId;
+        mov ecx, client;
+        push altModelIndex;
+        call dwFunc;
+        add esp, 4;
+    }
+    return 0;
+}
+
+int Add_Ammo(gentity_s* gEnt, int weaponIndex, char weaponModel, int ammo, int fillClip)
+{
+    int dwFunc = 0x4B6610;
+    __asm {
+        push fillClip;
+        push ammo;
+        push weaponModel;
+        push weaponIndex;
+        mov eax, gEnt;
+        call dwFunc;
+        add esp, 0x10;
+    }
+    return 0;
+}
+
+int CG_EntityEvent(int clientNum, entityEvents_t eventNum, centity_t* predictedPlayerEntity)
+{
+    int func = 0x434220;
+    __asm {
+        movzx ebx, eventNum;
+        mov ecx, clientNum;
+        mov eax, ebx;
+        push predictedPlayerEntity;
+        call func;
+        add esp, 4;
+    }
+    return 0;
+}
+
 void GetPlayerNameByClientNum(int clientNum) {
     int fnGetPlayerNameByClientNum = 0x471550;
     char name[40];

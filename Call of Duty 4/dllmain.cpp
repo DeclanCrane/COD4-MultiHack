@@ -332,11 +332,17 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
 
     if (GetAsyncKeyState(VK_NUMPAD3) & 0x01) {
         //PrintMemory((void*)0x4162B2, 2);
-        reserveAmmoPatch.Set();
+        /*reserveAmmoPatch.Set();*/
+        //int ammo = BG_WeaponAmmo(game.players[0].GetWeaponID(), game.players[0].playerState);
+        //std::cout << "Ammo: " << ammo << "\n";
+        //G_GivePlayerWeapon(6, game.players[0].gEntity->client, 0);
+        //Add_Ammo(game.players[0].gEntity, game.players[0].GetWeaponID(), 0, 150, 1);
+        std::cout << &pCG->predictedPlayerEntity.entityState.eventParam << "\n";
+        CG_EntityEvent(0, EV_STANCE_FORCE_PRONE, &pCG->predictedPlayerEntity);
     }
 
     if (GetAsyncKeyState(VK_NUMPAD4) & 0x01) {
-        reserveAmmoPatch.Restore();
+        /*reserveAmmoPatch.Restore();*/
     }
 
     // Call original endScene after detour

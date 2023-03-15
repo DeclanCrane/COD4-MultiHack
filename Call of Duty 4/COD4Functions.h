@@ -122,3 +122,16 @@ bool Bullet_Trace(BulletTraceResults* btr, WeaponDef* weapDef, BulletFireParams*
 
 // Doesn't seem to do much. Kind of pointless anyways.
 int GetBulletDamage(WeaponDef* weapDef, BulletFireParams* bfp, BulletTraceResults* btr);
+
+// Returns total amount of player's weapon ammo
+int BG_WeaponAmmo(int weaponId, playerState_s* ps);
+
+// Gives player specified weapon by id
+int G_GivePlayerWeapon(int weaponId, gclient_s* client, unsigned char altModelIndex);
+
+// Gives player ammo for specified weapon
+int Add_Ammo(gentity_s* gEnt, int weaponIndex, char weaponModel, int ammo, int fillClip);
+
+// WARNING: centity_t* is not the one found in cEntitiesArray
+// Get it at pCG->predictedPlayerEntity
+int CG_EntityEvent(int clientNum, entityEvents_t event, centity_t* predictedPlayerEntity);

@@ -32,4 +32,9 @@ public:
 	void Restore();
 };
 
+class Hook {
+public:
+
+};
+
 void PrintMemory(void* src, size_t size, bool bNewLine = true);
