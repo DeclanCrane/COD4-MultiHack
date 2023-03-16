@@ -70,9 +70,7 @@ extern _TeleportPlayer TeleportPlayer;
 typedef void(__cdecl* _SetClientViewAngle)(gentity_s* gEnt, const vec3_t angles);
 extern _SetClientViewAngle SetClientViewAngle;
 
-/*
-	Returns weapon index from weapName
-*/
+//Returns weapon index from weapName
 typedef int(__cdecl* _BG_GetWeaponIndexForName)(const char* weapName);
 extern _BG_GetWeaponIndexForName BG_GetWeaponIndexForName;
 
@@ -100,7 +98,6 @@ void WeaponFireRecoil(playerState_s* ps, vec3_t* speed, vec3_t* kick);
 // Works though
 void WeaponStuff(playerState_s* ps, int clientNum);
 
-// Works
 void CG_CalcEyePoint(int clientNum, vec3_t* pos);
 
 // Works, but not using it right.
@@ -196,4 +193,5 @@ float BG_GetBobCycle(playerState_s* ps);
 int GetUserCmd(int currentCmdNum, usercmd_s* cmd);
 
 // Decrements player's reserve ammo, and fills clip
+// Only if reserve ammo if available
 void FillClip(gclient_s* client, int weapId);

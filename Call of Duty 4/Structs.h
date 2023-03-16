@@ -169,29 +169,6 @@ public:
 	vec3_t vOrigin; //0x0020
 }; //Size: 0x4
 
-
-//class CTrace
-//{
-//public:
-//	float Fraction; //0
-//	vec3_t endpos; //4
-//	int SurfaceFlags; //10
-//	int unknown; //14
-//	char* SurfaceName; //18
-//	int contents; //1C
-//	short EntityNumber; //20
-//};
-
-//struct CTrace
-//{
-//	float Fraction;
-//	vec3_t endpos;
-//	int SurfaceFlags;
-//	int unknown;
-//	char* SurfaceName;
-//	unsigned char szUnknown0[268];
-//};
-
 struct CTrace
 {
 	float Fraction;
@@ -203,20 +180,6 @@ struct CTrace
 	unsigned char szUnknown0[264];
 };
 
-//class RefDef
-//{
-//public:
-//	char pad_0000[8]; //0x0000
-//	int Width; //0x0008
-//	int Height; //0x000C
-//	vec2_t FoV; //0x0010
-//	vec3_t vCameraPos; //0x0018
-//	vec3_t mViewMatrix[3]; //0x0024
-//	vec3_t vCameraPos2; //0x0048
-//	int GameTime; //0x0054
-//	char pad_0058[284]; //0x0058
-//}; //Size: 0x0174
-
 class ViewAngles
 {
 public:
@@ -226,28 +189,5 @@ public:
 //==================TEMP==================
 // THESE ARE TEMPORARY AND SHOULD NOT BE USED
 //==================TEMP==================
-#define _USE_MATH_DEFINES
-
-#define	PITCH					0
-#define YAW						1
-#define	ROLL					2
-
-#define ANGLE2SHORT(x)          ((int)((x) * 65536 / 360) & 65535)
-#define SHORT2ANGLE(x)          ((x)*(360.0 / 65536))
-
-#define	VectorScale(v, s, o)	((o)[0]=(v)[0]*(s),(o)[1]=(v)[1]*(s),(o)[2]=(v)[2]*(s))
-#define VectorCopy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2])
-
-//ImGui copy
-#define ImVec4Copy(i,v)	(v.x=i.x, v.y=i.y, v.z=i.z, v.w=i.w)
-
-#define VectorSubtract(a,b,c)	((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
-#define	VectorMA(v, s, b, o)	((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s))
-//#define DotProduct(x,y)			((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
-
-
-#define DegreesToRadians(a) ((a)*((float)M_PI/180.0f))
-#define RadiansToDegrees(a) ((a)*(180.0f/(float)M_PI))
-#define AngleNormalize(a) (SHORT2ANGLE(ANGLE2SHORT((a))))
 
 #define ABS(x) ((x < 0) ? (-x) : (x))

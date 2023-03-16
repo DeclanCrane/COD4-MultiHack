@@ -31,11 +31,17 @@ Patch reserveAmmoPatch((void*)0x4162B2, bytes);
 typedef void(__cdecl* tRenderScene)(RefDef* refdef);
 tRenderScene oRenderScene;
 
+typedef void(__cdecl* _Engine)();
+_Engine Engine;
+
 typedef void(__cdecl* _ClientEndFrame)(int unknown);
 _ClientEndFrame ClientEndFrame;
 
 typedef void(__cdecl* _CL_WritePacket)();
 _CL_WritePacket CL_WritePacket;
+
+// Make sure D3D9 device is only passed once
+static bool bGotDraw = false;
 
 void __cdecl newWritePacket() {
     if (game.updateSilent && pCG->snap && GetAsyncKeyState('X') & 0x01) {
@@ -70,34 +76,44 @@ void __cdecl newWritePacket() {
     CL_WritePacket();
 }
 
-void __cdecl newClientEndFrame(int unknown) {
-    if (GetAsyncKeyState(VK_NUMPAD1) & 0x01) {
-        /*headBone = RegisterTag("j_head", 1, 7);*/
-        //if (AimTarget_IsTargetVisible(headBone, (int*)(0x08474B4))) {
-        //    std::cout << "Visible\n";
-        //}
-        //else {
-        //    std::cout << "Invisible\n";
-        //}
-        //vec3_t bonePos = {};
-        //GetTagPos_0(headBone, (int*)(0x08474B4), &bonePos);
-        //std::cout << "X: " << bonePos.x << std::endl;
+void __cdecl EngineHook() {
+    if (GetAsyncKeyState('X') & 0x01) {
+        int bestTarget = GetBestTarget();
+        if (bestTarget > 0) // If there's a valid target
+            DoAimbot(bestTarget);
+        //Sleep(1); // Prevents jitter?
     }
-    ClientEndFrame(unknown);
+    Engine();
 }
 
-void __cdecl myRenderScene() {
-    int a = 1;
-    a += 1;
-}
+//void __cdecl newClientEndFrame(int unknown) {
+//    if (GetAsyncKeyState(VK_NUMPAD1) & 0x01) {
+//        /*headBone = RegisterTag("j_head", 1, 7);*/
+//        //if (AimTarget_IsTargetVisible(headBone, (int*)(0x08474B4))) {
+//        //    std::cout << "Visible\n";
+//        //}
+//        //else {
+//        //    std::cout << "Invisible\n";
+//        //}
+//        //vec3_t bonePos = {};
+//        //GetTagPos_0(headBone, (int*)(0x08474B4), &bonePos);
+//        //std::cout << "X: " << bonePos.x << std::endl;
+//    }
+//    ClientEndFrame(unknown);
+//}
 
-void __cdecl newrenderscene(RefDef* rd)
-{
-    _asm pushad;
-    myRenderScene();
-    _asm popad;
-    oRenderScene(rd);
-}
+//void __cdecl myRenderScene() {
+//    int a = 1;
+//    a += 1;
+//}
+//
+//void __cdecl newrenderscene(RefDef* rd)
+//{
+//    _asm pushad;
+//    myRenderScene();
+//    _asm popad;
+//    oRenderScene(rd);
+//}
 
 void __cdecl hCG_FastTrace(CTrace* pTrace, const vec3_t StartPos, const vec3_t EndPos, vec3_t Min, vec3_t Max, int iSkipNum, DWORD dwTraceFlags)
 {
@@ -169,8 +185,6 @@ std::vector<Entity*> Entities = {};
 std::vector<DynamicEntity*> DynEntities = {};
 
 HWND hWindow = FindWindowA(0, "Call of Duty 4");
-// Make sure D3D9 device is only passed once
-static bool bGotDraw = false;
 
 // EndScene Detour
 HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
@@ -181,21 +195,27 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
         bGotDraw = true;
     }
 
-    for (int i = 1; i < game.players.size(); i++) { // Set i to 1, skips our own player
-        ESP(i);
-    }
+    /*
+        ESP
+    */
+    //for (int i = 1; i < game.players.size(); i++) { // Set i to 1, skips our own player
+    //    ESP(i);
+    //}
 
     //GetDynamicEntities(DynEntities);
     //for (int i = 0; i < DynEntities.size(); i++) {
     //    Wall(DynEntities[i], pRefDef);
     //}
 
-    if (GetAsyncKeyState('X') & 0x01) {
-        int bestTarget = GetBestTarget();
-        if (bestTarget > 0) // If there's a valid target
-            DoAimbot(bestTarget);
-        Sleep(1); // Prevents jitter?
-    }
+    /*
+        AIMBOT
+    */
+    //if (GetAsyncKeyState('X') & 0x01) {
+    //    int bestTarget = GetBestTarget();
+    //    if (bestTarget > 0) // If there's a valid target
+    //        DoAimbot(bestTarget);
+    //    Sleep(1); // Prevents jitter?
+    //}
 
     if (GetAsyncKeyState(VK_LEFT) & 0x01) {
         //headBone = fnRegisterTag("j_head", 1, 7);
@@ -441,8 +461,9 @@ int MainThread(PVOID pModule) {
     //if (!oRenderScene)
     //    return -1;
 
-    /*ClientEndFrame = (_ClientEndFrame)DetourFunction((PBYTE)0x4A4D90, (PBYTE)&newClientEndFrame);*/
-    CL_WritePacket = (_CL_WritePacket)DetourFunction((PBYTE)0x460270, (PBYTE)&newWritePacket);
+    //ClientEndFrame = (_ClientEndFrame)DetourFunction((PBYTE)0x4A4D90, (PBYTE)&newClientEndFrame);
+    Engine = (_Engine)DetourFunction((PBYTE)0x42DD20, (PBYTE)&EngineHook);
+    //CL_WritePacket = (_CL_WritePacket)DetourFunction((PBYTE)0x460270, (PBYTE)&newWritePacket);
     // Hack loop
     while (true) {
         if (GetAsyncKeyState(VK_END) & 0x01) {
@@ -465,7 +486,8 @@ int MainThread(PVOID pModule) {
     }
 
     //Release Engine Hooks
-    DetourRemove((PBYTE)CL_WritePacket, (PBYTE)newWritePacket);
+    //DetourRemove((PBYTE)CL_WritePacket, (PBYTE)newWritePacket);
+    DetourRemove((PBYTE)Engine, (PBYTE)EngineHook);
     Sleep(100);
 
     // Clean up and exit
