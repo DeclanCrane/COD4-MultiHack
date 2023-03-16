@@ -19,6 +19,8 @@
 
 #include <iomanip>
 
+#define ANGLE2SHORT(x)          ((int)((x) * 65536 / 360) & 65535)
+
 //clientActive_t* clientActive = (clientActive_t*)0xC57930;
 dvar_s* svCheats = (dvar_s*)0xCBA3808;
 
@@ -26,11 +28,47 @@ std::vector<byte> bytes = { 0x90, 0x90 };
 Patch reserveAmmoPatch((void*)0x4162B2, bytes);
 
 // RenderScene
-typedef void(__cdecl* tRenderScene)(RefDef* rd);
+typedef void(__cdecl* tRenderScene)(RefDef* refdef);
 tRenderScene oRenderScene;
 
 typedef void(__cdecl* _ClientEndFrame)(int unknown);
 _ClientEndFrame ClientEndFrame;
+
+typedef void(__cdecl* _CL_WritePacket)();
+_CL_WritePacket CL_WritePacket;
+
+void __cdecl newWritePacket() {
+    if (game.updateSilent && pCG->snap && GetAsyncKeyState('X') & 0x01) {
+        usercmd_s cmd = {};
+        usercmd_s oldcmd = {};
+
+        // Get the CMDs
+        GetUserCmd(*pCurrentCMDNum, &cmd);
+        GetUserCmd(*pCurrentCMDNum - 1, &oldcmd);
+
+        std::cout << "Before\n";
+        std::cout << "X:" << oldcmd.Yaw << " " << "Y: " << oldcmd.Pitch << "\n";
+
+        // Change packets
+        oldcmd.serverTime += 1;
+
+        // Write angles
+        oldcmd.Yaw = ANGLE2SHORT(game.silentAngles.x);
+        oldcmd.Pitch = ANGLE2SHORT(game.silentAngles.y);
+        oldcmd.Roll = 0;
+
+        std::cout << "After\n";
+        std::cout << "X:" << oldcmd.Yaw << " " << "Y: " << oldcmd.Pitch << "\n";
+
+        *pCurrentCMDNum += 1;
+
+        // Reset angles
+        vec2_t zero(0.f, 0.f);
+        game.silentAngles = zero;
+        return;
+    }
+    CL_WritePacket();
+}
 
 void __cdecl newClientEndFrame(int unknown) {
     if (GetAsyncKeyState(VK_NUMPAD1) & 0x01) {
@@ -81,14 +119,14 @@ void __cdecl hCG_FastTrace(CTrace* pTrace, const vec3_t StartPos, const vec3_t E
     }
 }
 
-void FillClip(int* playerState, int weapon) {
-    DWORD dwFunc = 0x4B65B0;
-    __asm {
-        mov edx, playerState;
-        mov ecx, weapon;
-        call dwFunc;
-    }
-}
+//void FillClip(int* playerState, int weapon) {
+//    DWORD dwFunc = 0x4B65B0;
+//    __asm {
+//        mov edx, playerState;
+//        mov ecx, weapon;
+//        call dwFunc;
+//    }
+//}
 
 bool TraceIsVisible(vec3_t v3EndPos, float nHeight)
 {
@@ -144,7 +182,7 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
     }
 
     for (int i = 1; i < game.players.size(); i++) { // Set i to 1, skips our own player
-        ESP(game.players[i]);
+        ESP(i);
     }
 
     //GetDynamicEntities(DynEntities);
@@ -340,19 +378,40 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
         //std::cout << &pCG->predictedPlayerEntity.entityState.eventParam << "\n";
         //CG_EntityEvent(0, EV_STANCE_FORCE_PRONE, &pCG->predictedPlayerEntity);
 
-        int weap = CurrentPrimaryWeapon(game.players[1].playerState);
+        int weap = CurrentPrimaryWeapon(game.players[0].playerState);
         std::cout << "Current Weapon: " << weap << "\n";
 
-        gentity_s* result = Drop_Weapon(weap, game.players[1].gEntity, *game.players[1].playerState->weaponsOld[weap + 8], 0);
+        gentity_s* result = Drop_Weapon(weap, game.players[0].gEntity, *game.players[0].playerState->weaponsOld[weap + 8], 0);
         std::cout << "Drop Weapon Result: " << result << "\n";
     }
 
     if (GetAsyncKeyState(VK_NUMPAD4) & 0x01) {
         /*int result = TakeAwayClipAmmo(2, CurrentPrimaryWeapon(game.players[0].playerState), game.players[0].playerState);*/
+        
         //int result = IsClipEmpty(game.players[0].playerState);
+     
         //bool result = IsPlayerFiring(game.players[0].GetWeaponDef(), game.players[0].playerState);
         //std::cout << "FireType: " << result << "\n";
-        Fire(game.players[0].playerState, 0);
+        // 
+        //CG_FireWeaponEasy(game.players[0].playerState, 0);
+
+        /*CG_FireMeleeEasy(game.players[0].playerState);*/
+
+        /*Play_RaiseFromGrenadeThrow(game.players[0].playerState);*/
+
+        //bool result = IsMantling(game.players[0].gEntity->client);
+        //std::cout << "Mantling: " << result << "\n";
+
+        //bool result = IsHoldingWeapon(4, game.players[0].playerState);
+        //std::cout << "Holding: " << result << "\n";
+
+        //bool result = PlayerHasSpecificWeapon(0xB, game.players[0].playerState);
+        //std::cout << "Unknown2: " << result << "\n";
+
+        //float result = BG_GetBobCycle(game.players[0].playerState);
+        //std::cout << "Result: " << result << "\n";
+
+        FillClip(game.players[0].gEntity->client, game.players[0].GetWeaponID());
     }
 
     // Call original endScene after detour
@@ -370,6 +429,8 @@ int MainThread(PVOID pModule) {
     console.CreateConsole();
     std::cout << "Running\n";
 
+    game.updateSilent = true;
+
     // Setup EndScene Hook
     Hook.HookEndScene(hWindow, myDetour, myResetDetour);
 
@@ -381,7 +442,7 @@ int MainThread(PVOID pModule) {
     //    return -1;
 
     /*ClientEndFrame = (_ClientEndFrame)DetourFunction((PBYTE)0x4A4D90, (PBYTE)&newClientEndFrame);*/
-
+    CL_WritePacket = (_CL_WritePacket)DetourFunction((PBYTE)0x460270, (PBYTE)&newWritePacket);
     // Hack loop
     while (true) {
         if (GetAsyncKeyState(VK_END) & 0x01) {
@@ -403,9 +464,9 @@ int MainThread(PVOID pModule) {
         Hack();
     }
 
-    // Release Engine Hooks
-    //DetourRemove((PBYTE)&ClientEndFrame, (PBYTE)&newClientEndFrame);
-    //Sleep(100);
+    //Release Engine Hooks
+    DetourRemove((PBYTE)CL_WritePacket, (PBYTE)newWritePacket);
+    Sleep(100);
 
     // Clean up and exit
     console.CloseConsole();

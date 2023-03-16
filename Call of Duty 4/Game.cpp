@@ -10,6 +10,7 @@ Game::Game()
 	this->gameType = CGs->gameType;
 	this->mapName = CGs->mapname;
 	this->players.reserve(MAX_PLAYERS);
+	this->updateSilent = false;
 }
 
 bool Game::IsInGame()

@@ -6,7 +6,7 @@ void DoAimbot(int target)
 {
 
 	// Check if visible and valid
-	if(/*!IsTargetVisible(headBone, game.players[target].cEntity) || */!IsTargetValid(game.players[target].cEntity))
+	if(!IsTargetValid(game.players[target].cEntity))
 		return;
 
 	// Get the bone we want
@@ -24,7 +24,7 @@ void DoAimbot(int target)
 	pViewAngles->vViewAngles.x += delta.x;
 	pViewAngles->vViewAngles.y += delta.y;
 
-	// Fire gun
+	//Fire gun
 	if (hack.bKnifeAimbot) {
 		FireWeaponMelee((int*)0x1280500, game.GetServerTime() + 1);
 	}

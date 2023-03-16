@@ -1,21 +1,39 @@
 #include "Wall.h"
 
-void ESP(Player target)
+unsigned short headBoneWall = RegisterTag("j_head", 1, 7);
+
+void ESP(int targetIndex)
 {
-    if (!target.IsAlive())
+
+    if (!game.players[targetIndex].IsAlive())
         return;
 
     vec2_t enemyScreenPos;
     vec2_t enemyHead2D;
 
-    if (WorldToScreen(*target.vOrigin, enemyScreenPos)) {
+    if (WorldToScreen(*game.players[targetIndex].vOrigin, enemyScreenPos)) {
         // Top of box
         vec3_t vHeadOrigin;
-        vHeadOrigin = *target.vOrigin;
+        vHeadOrigin = *game.players[targetIndex].vOrigin;
         vHeadOrigin.z += 65.f; // Added height for head
 
         if (WorldToScreen(vHeadOrigin, enemyHead2D)) {
-            Drawing.DrawEspBox2D(enemyScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(1 * 255), int(0 * 255), int(0 * 255)));
+			// Are they on our team?
+			if (!CG_OnSameTeam(game.players[game.GetLocalClientNum()].gEntity, game.players[targetIndex].gEntity)) {
+				// Are the visible?
+				if (IsTargetVisible(headBoneWall, game.players[targetIndex].cEntity)) {
+					// Enemy visible color
+					Drawing.DrawEspBox2D(enemyScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(0 * 255), int(1 * 255), int(0 * 255)));
+				}
+				else {
+					// Enemy invisible color
+					Drawing.DrawEspBox2D(enemyScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(1 * 255), int(0 * 255), int(0 * 255)));
+				}
+			}
+			else {
+				// Team color
+				Drawing.DrawEspBox2D(enemyScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(0 * 255), int(0 * 255), int(1 * 255)));
+			}
         }
     }
 }
@@ -23,7 +41,7 @@ void ESP(Player target)
 bool WorldToScreen(vec3_t world, vec2_t& screen)
 {
 	vec3_t Position;
-	Position = world - pRefDef->vCameraPos;
+	Position = world - pRefDef->vOrigin;
 	vec3_t Transform;
 
 	// Get our dot products from viewMatrix

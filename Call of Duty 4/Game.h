@@ -14,6 +14,8 @@ public:
 	char* gameType;
 	char* mapName;
 	std::vector<Player> players;
+	vec2_t silentAngles;
+	bool updateSilent;
 public:
 	Game();
 	bool IsInGame();

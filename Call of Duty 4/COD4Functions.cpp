@@ -477,7 +477,7 @@ bool IsPlayerFiring(WeaponDef* weapDef, playerState_s* ps)
     return result;
 }
 
-int Reload(playerState_s* ps, int reloadType)
+int CG_FireWeaponEasy(playerState_s* ps, int reloadType)
 {
     int result = 0;
     int func = 0x418270;
@@ -490,3 +490,149 @@ int Reload(playerState_s* ps, int reloadType)
 
     return result;
 }
+
+void CG_FireMeleeEasy(playerState_s* ps)
+{
+    int func = 0x418470;
+    __asm {
+        mov esi, ps;
+        call func;
+    }
+}
+
+void RaiseWeapon(playerState_s* ps)
+{
+    int func = 0x418380;
+    __asm {
+        mov eax, ps;
+        call func;
+    }
+}
+
+void RaiseWeapon_2(playerState_s* ps)
+{
+    int func = 0x418410;
+    __asm {
+        mov eax, ps;
+        call func;
+    }
+}
+
+void ReadyWeapon(playerState_s* ps)
+{
+    int func = 0x418690;
+    __asm {
+        mov eax, ps;
+        call func;
+    }
+}
+
+void CG_ThrowGrenadeEasy(playerState_s* ps)
+{
+    int func = 0x418770;
+    __asm {
+        mov eax, ps;
+        call func;
+    }
+}
+
+void Play_RaiseFromGrenadeThrow(playerState_s* ps)
+{
+    int func = 0x418A50;
+    __asm {
+        mov eax, ps;
+        call func;
+    }
+}
+
+bool IsMantling(gclient_s* client)
+{
+    bool result = false;
+    int func = 0x408F20;
+    __asm {
+        mov eax, client;
+        call func;
+        mov result, al;
+    }
+    return result;
+}
+
+void Unknown1(playerState_s* ps)
+{
+    int func = 0x415ED0;
+    __asm {
+        mov esi, ps;
+        call func;
+    }
+}
+
+bool IsHoldingWeapon(int weapId, playerState_s* ps)
+{
+    bool result = false;
+    int func = 0x415510;
+    __asm {
+        push ps;
+        mov eax, weapId;
+        call func;
+        add esp, 4;
+        mov result, al;
+    }
+    return result;
+}
+
+bool PlayerHasSpecificWeapon(int weapId, playerState_s* ps)
+{
+    bool result = false;
+    int func = 0x409040;
+    __asm {
+        push ps;
+        mov edx, weapId;
+        call func;
+        add esp, 4;
+        mov result, al;
+    }
+    return result;
+}
+
+float BG_GetBobCycle(playerState_s* ps)
+{
+    float result = 0.f;
+    int func = 0x419670;
+    __asm {
+        mov eax, ps;
+        call func;
+        fstp result;
+    }
+    return result;
+}
+
+int GetUserCmd(int currentCmdNum, usercmd_s* cmd)
+{
+    int func = 0x4573f0;
+    __asm {
+        mov eax, currentCmdNum;
+        mov ecx, cmd;
+        push ecx;
+        call func;
+        add esp, 4;
+    }
+    return 0;
+}
+
+void FillClip(gclient_s* client, int weapId)
+{
+    int func = 0x4B65B0;
+    __asm {
+        mov ecx, weapId;
+        mov edx, client;
+        call func;
+    }
+}
+
+//void CL_WritePacket()
+//{
+//    int func = 0x460270;
+//    __asm {
+//        call func;
+//    }
+//}

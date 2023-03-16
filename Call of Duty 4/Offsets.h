@@ -27,6 +27,9 @@ extern RefDef* pRefDef;
 // Holds the players view angles
 extern ViewAngles* pViewAngles;
 
+// Holds current CMD number, used for CL_GetUserCmd
+extern int* pCurrentCMDNum;
+
 // Holds game information (e.g. Number of clients)
 //extern clSnapshot_t* pCLSnapshot;
 

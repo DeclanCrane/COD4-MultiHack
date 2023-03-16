@@ -163,4 +163,37 @@ int UnknownFunc(int weaponId, playerState_s* ps, char a3);
 
 bool IsPlayerFiring(WeaponDef* weapDef, playerState_s* ps);
 
-int Reload(playerState_s* ps, int reloadType);
+int CG_FireWeaponEasy(playerState_s* ps, int reloadType);
+
+void CG_FireMeleeEasy(playerState_s* ps);
+
+void RaiseWeapon(playerState_s* ps);
+
+void RaiseWeapon_2(playerState_s* ps);
+
+// Seems kind of useless
+void ReadyWeapon(playerState_s* ps);
+
+void CG_ThrowGrenadeEasy(playerState_s* ps);
+
+void Play_RaiseFromGrenadeThrow(playerState_s* ps);
+
+bool IsMantling(gclient_s* client);
+
+// Something to do with holding breath
+void Unknown1(playerState_s* ps);
+
+// Returns true if player is holding specified weapon
+bool IsHoldingWeapon(int weapId, playerState_s* ps);
+
+// Same as IsHoldingWeapon afaik
+bool PlayerHasSpecificWeapon(int weapId, playerState_s* ps);
+
+// Has something to do with footsteps?
+float BG_GetBobCycle(playerState_s* ps);
+
+// Returns CMD for modifying packets in CL_WritePacket
+int GetUserCmd(int currentCmdNum, usercmd_s* cmd);
+
+// Decrements player's reserve ammo, and fills clip
+void FillClip(gclient_s* client, int weapId);

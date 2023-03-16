@@ -16,6 +16,7 @@ int pWeaponInfoBase = 0x72EDB8;
 DynamicEntityList* pDynamicEntList = (DynamicEntityList*)0x7492D0;
 RefDef* pRefDef = (RefDef*)0x78F600;
 ViewAngles* pViewAngles = (ViewAngles*)0xC7CFD8;
+int* pCurrentCMDNum = (int*)0xCBDFF8;
 //clSnapshot_t* pCLSnapshot = (clSnapshot_t*)0x0C57938;
 playerState_s* pPlayerState = (playerState_s*)0x078C474;
 CGs_t* pCGs = (CGs_t*)0x0742908;
