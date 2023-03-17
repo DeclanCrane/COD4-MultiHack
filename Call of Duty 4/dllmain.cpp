@@ -76,19 +76,33 @@ void __cdecl CG_PredictPlayerStateHook(int unk) {
     CG_PredictPlayerState(unk);
 }
 
-void __cdecl CL_WritePacketHook() {
-    if (game.bSilentAim && game.updateSilent && pCG->snap) {
+unsigned short jBone = RegisterTag("j_head", 1, 7);
 
-        //std::cout << "Updating angles\n";
+void __cdecl CL_WritePacketHook() {
+    if (GetAsyncKeyState('L') & 0x01) {
+
+        // Get the bone we want
+        vec3_t vAimPos;
+        AimTarget_GetTagPos(jBone, game.players[1].cEntity, &vAimPos);
+
+        vec3_t vAngles;
+        GetAngleToTarget(vAimPos, pRefDef->vCameraPos, vAngles);
+
+        // Get Delta Angles
+        vec2_t delta;
+        delta.x = vAngles.y - pPlayerState->vViewAngles.x;
+        delta.y = vAngles.x - pPlayerState->vViewAngles.y;
+
+        std::cout << "Updating angles\n";
         updatedCmd_s* cmd = nullptr;
         updatedCmd_s* oldcmd = nullptr;
 
         cmd = GetCmd((pInput->currentCmdNum & 0x7F));
         oldcmd = GetCmd((pInput->currentCmdNum & 0x7F) - 1);
-        *oldcmd = *cmd;
+        //*oldcmd = *cmd;
 
-        cmd->serverTime += 1;
-        pInput->currentCmdNum += 1;
+        cmd->serverTime += +1;
+        //pInput->currentCmdNum += 1;
 
         //std::cout << "Added\n";
         //std::cout << "Yaw: " << ANGLE2SHORT(game.silentAngles.y) << " " << "Pitch: " << ANGLE2SHORT(game.silentAngles.x) << " " << "Roll: " << 0 << "\n";
@@ -96,14 +110,15 @@ void __cdecl CL_WritePacketHook() {
         //std::cout << "Before\n";
         //std::cout << "Yaw: " << oldcmd->Yaw << " " << "Pitch: " << oldcmd->Pitch << " " << "xxRoll: " << oldcmd->Roll << "\n";
 
-        cmd->Pitch += ANGLE2SHORT(game.silentAngles.x);
-        cmd->Yaw += ANGLE2SHORT(game.silentAngles.y);
+        cmd->Pitch += ANGLE2SHORT(delta.x);
+        cmd->Yaw += ANGLE2SHORT(delta.y);
         cmd->Roll = 0;
 
         //std::cout << "After\n";
         //std::cout << "Yaw: " << oldcmd->Yaw << " " << "Pitch: " << oldcmd->Pitch << " " << "Roll: " << oldcmd->Roll << "\n";
 
-        game.updateSilent = false;
+        CL_WritePacket();
+        return;
     }
     CL_WritePacket();
 }
