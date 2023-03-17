@@ -21,6 +21,7 @@ int* pCurrentCMDNum = (int*)0xCBDFF8;
 playerState_s* pPlayerState = (playerState_s*)0x078C474;
 CGs_t* pCGs = (CGs_t*)0x0742908;
 CG_s* pCG = (CG_s*)0x0746338;
+input_t* pInput = (input_t*)0x0CBCFF8;
 
 // Functions
 

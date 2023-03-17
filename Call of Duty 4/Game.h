@@ -15,7 +15,8 @@ public:
 	char* mapName;
 	std::vector<Player> players;
 	vec2_t silentAngles;
-	bool updateSilent;
+	bool updateSilent; // Used for updating silentAim packets
+	bool bSilentAim; // Used for toggling silent aim
 public:
 	Game();
 	bool IsInGame();

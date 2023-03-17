@@ -21,16 +21,28 @@ void DoAimbot(int target)
 	delta.x = vAngles.y - pPlayerState->vViewAngles.x;
 	delta.y = vAngles.x - pPlayerState->vViewAngles.y;
 
-	pViewAngles->vViewAngles.x += delta.x;
-	pViewAngles->vViewAngles.y += delta.y;
-
-	//Fire gun
-	if (hack.bKnifeAimbot) {
-		FireWeaponMelee((int*)0x1280500, game.GetServerTime() + 1);
+	if (!game.bSilentAim) {
+		pViewAngles->vViewAngles.x += delta.x;
+		pViewAngles->vViewAngles.y += delta.y;
 	}
 	else {
-		FireWeapon((gentity_s*)0x1280500, game.GetServerTime() + 1); // Change this to local player
+		// Send angles to CL_WritePacketHook
+		if (!game.updateSilent) {
+			// If they need to be updated
+			game.silentAngles.x = delta.x;
+			game.silentAngles.y = delta.y;
+			game.updateSilent = true;
+		}
 	}
+
+	//Fire gun
+	//if (hack.bKnifeAimbot) {
+	//	FireWeaponMelee((int*)0x1280500, game.GetServerTime() + 1);
+	//}
+	//else {
+	//	//FireWeapon((gentity_s*)0x1280500, game.GetServerTime() + 1); // Change this to local player
+	//	CG_FireWeaponEasy(game.players[0].playerState, 1);
+	//}
 }
 
 void GetAngleToTarget(vec3_t& vTargetPos, vec3_t& vCameraPos, vec3_t& vAngles)

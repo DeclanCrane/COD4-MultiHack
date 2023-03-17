@@ -21,6 +21,10 @@
 
 #define ANGLE2SHORT(x)          ((int)((x) * 65536 / 360) & 65535)
 
+updatedCmd_s* GetCmd(int cmd) {
+    return &pInput->cmds[cmd];
+}
+
 //clientActive_t* clientActive = (clientActive_t*)0xC57930;
 dvar_s* svCheats = (dvar_s*)0xCBA3808;
 
@@ -40,38 +44,66 @@ _ClientEndFrame ClientEndFrame;
 typedef void(__cdecl* _CL_WritePacket)();
 _CL_WritePacket CL_WritePacket;
 
+typedef void(__cdecl* _CG_PredictPlayerState)(int unk);
+_CG_PredictPlayerState CG_PredictPlayerState;
+
 // Make sure D3D9 device is only passed once
 static bool bGotDraw = false;
 
-void __cdecl newWritePacket() {
-    if (game.updateSilent && pCG->snap && GetAsyncKeyState('X') & 0x01) {
-        usercmd_s cmd = {};
+void __cdecl CG_PredictPlayerStateHook(int unk) {
+    if (game.bSilentAim && game.updateSilent && pCG->snap) {
         usercmd_s oldcmd = {};
 
-        // Get the CMDs
-        GetUserCmd(*pCurrentCMDNum, &cmd);
+        // Get the CMD
         GetUserCmd(*pCurrentCMDNum - 1, &oldcmd);
 
         std::cout << "Before\n";
         std::cout << "X:" << oldcmd.Yaw << " " << "Y: " << oldcmd.Pitch << "\n";
 
-        // Change packets
-        oldcmd.serverTime += 1;
+        // Update packet time
+        oldcmd.serverTime = pCG->time + 1;
 
         // Write angles
-        oldcmd.Yaw = ANGLE2SHORT(game.silentAngles.x);
-        oldcmd.Pitch = ANGLE2SHORT(game.silentAngles.y);
-        oldcmd.Roll = 0;
+        oldcmd.Yaw += ANGLE2SHORT(game.silentAngles.y);
+        oldcmd.Pitch += ANGLE2SHORT(game.silentAngles.x);
+        oldcmd.Roll += 0;
 
         std::cout << "After\n";
         std::cout << "X:" << oldcmd.Yaw << " " << "Y: " << oldcmd.Pitch << "\n";
 
-        *pCurrentCMDNum += 1;
+        game.updateSilent = false;
+    }
+    CG_PredictPlayerState(unk);
+}
 
-        // Reset angles
-        vec2_t zero(0.f, 0.f);
-        game.silentAngles = zero;
-        return;
+void __cdecl CL_WritePacketHook() {
+    if (game.bSilentAim && game.updateSilent && pCG->snap) {
+
+        //std::cout << "Updating angles\n";
+        updatedCmd_s* cmd = nullptr;
+        updatedCmd_s* oldcmd = nullptr;
+
+        cmd = GetCmd((pInput->currentCmdNum & 0x7F));
+        oldcmd = GetCmd((pInput->currentCmdNum & 0x7F) - 1);
+        *oldcmd = *cmd;
+
+        cmd->serverTime += 1;
+        pInput->currentCmdNum += 1;
+
+        //std::cout << "Added\n";
+        //std::cout << "Yaw: " << ANGLE2SHORT(game.silentAngles.y) << " " << "Pitch: " << ANGLE2SHORT(game.silentAngles.x) << " " << "Roll: " << 0 << "\n";
+
+        //std::cout << "Before\n";
+        //std::cout << "Yaw: " << oldcmd->Yaw << " " << "Pitch: " << oldcmd->Pitch << " " << "xxRoll: " << oldcmd->Roll << "\n";
+
+        cmd->Pitch += ANGLE2SHORT(game.silentAngles.x);
+        cmd->Yaw += ANGLE2SHORT(game.silentAngles.y);
+        cmd->Roll = 0;
+
+        //std::cout << "After\n";
+        //std::cout << "Yaw: " << oldcmd->Yaw << " " << "Pitch: " << oldcmd->Pitch << " " << "Roll: " << oldcmd->Roll << "\n";
+
+        game.updateSilent = false;
     }
     CL_WritePacket();
 }
@@ -83,6 +115,7 @@ void __cdecl EngineHook() {
             DoAimbot(bestTarget);
         //Sleep(1); // Prevents jitter?
     }
+
     Engine();
 }
 
@@ -434,6 +467,11 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
         FillClip(game.players[0].gEntity->client, game.players[0].GetWeaponID());
     }
 
+    if (GetAsyncKeyState(VK_NUMPAD5) & 0x01) {
+        std::cout << "Output: " << (*pCurrentCMDNum & 0x7F) << "\n";
+        std::cout << "New Output: " << (pInput->currentCmdNum & 0x7F) << "\n";
+    }
+
     // Call original endScene after detour
     return Hook.pEndScene(pDevice);
 }
@@ -463,7 +501,8 @@ int MainThread(PVOID pModule) {
 
     //ClientEndFrame = (_ClientEndFrame)DetourFunction((PBYTE)0x4A4D90, (PBYTE)&newClientEndFrame);
     Engine = (_Engine)DetourFunction((PBYTE)0x42DD20, (PBYTE)&EngineHook);
-    //CL_WritePacket = (_CL_WritePacket)DetourFunction((PBYTE)0x460270, (PBYTE)&newWritePacket);
+    CL_WritePacket = (_CL_WritePacket)DetourFunction((PBYTE)0x460270, (PBYTE)&CL_WritePacketHook);
+    /*CG_PredictPlayerState = (_CG_PredictPlayerState)DetourFunction((PBYTE)0x444A00, (PBYTE)&CG_PredictPlayerStateHook);*/
     // Hack loop
     while (true) {
         if (GetAsyncKeyState(VK_END) & 0x01) {
@@ -486,7 +525,8 @@ int MainThread(PVOID pModule) {
     }
 
     //Release Engine Hooks
-    //DetourRemove((PBYTE)CL_WritePacket, (PBYTE)newWritePacket);
+    DetourRemove((PBYTE)CL_WritePacket, (PBYTE)CL_WritePacketHook);
+    /*DetourRemove((PBYTE)CG_PredictPlayerState, (PBYTE)CG_PredictPlayerStateHook);*/
     DetourRemove((PBYTE)Engine, (PBYTE)EngineHook);
     Sleep(100);
 
@@ -512,4 +552,3 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     }
     return TRUE;
 }
-

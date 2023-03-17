@@ -11,6 +11,7 @@ Game::Game()
 	this->mapName = CGs->mapname;
 	this->players.reserve(MAX_PLAYERS);
 	this->updateSilent = false;
+	this->bSilentAim = true;
 }
 
 bool Game::IsInGame()

@@ -690,6 +690,21 @@ typedef struct usercmd_s
 	int32_t zJunk2; //0x001C
 } usercmd_s; //Size: 0x0020
 
+struct updatedCmd_s {
+	int serverTime; // 0x0
+	int eFlags; // 0x4
+	int Pitch; // 0x8
+	int Yaw; // 0xC
+	int Roll; // 0x10
+	int zUnknown[3]; // 0x14 - 0x1C
+};
+
+struct input_t
+{
+	updatedCmd_s cmds[128];
+	int currentCmdNum;
+}; //Size: 0x1004
+
 typedef struct centity_t {
 	cpose_t pose;
 	LerpEntityState lerpEntityState;

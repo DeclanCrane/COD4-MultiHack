@@ -40,6 +40,8 @@ extern CGs_t* pCGs;
 
 extern CG_s* pCG;
 
+extern input_t* pInput;
+
 typedef void(__cdecl *CGTrace)(CTrace* pTrace, vec3_t StartPos, vec3_t EndPos, vec3_t Min, vec3_t Max, int skipNum, DWORD dwTraceFlags);
 extern CGTrace fnCGTrace;
 
