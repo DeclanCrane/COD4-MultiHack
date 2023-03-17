@@ -2,43 +2,63 @@
 
 unsigned short headBoneWall = RegisterTag("j_head", 1, 7);
 
-void ESP(int targetIndex)
+void PlayerESP(int playerIndex)
 {
-	vec2_t enemyScreenPos;
+	vec2_t feetScreenPos;
 	vec2_t enemyHead2D;
 
 	// Make sure they're alive
-    if (!game.players[targetIndex].IsAlive())
+    if (!game.players[playerIndex].IsAlive())
         return;
 
-    if (WorldToScreen(*game.players[targetIndex].vOrigin, enemyScreenPos)) {
+    if (WorldToScreen(*game.players[playerIndex].vOrigin, feetScreenPos)) {
         // Top of box
         vec3_t vHeadOrigin;
-        vHeadOrigin = *game.players[targetIndex].vOrigin;
+        vHeadOrigin = *game.players[playerIndex].vOrigin;
         vHeadOrigin.z += 65.f; // Added height for head
 
         if (WorldToScreen(vHeadOrigin, enemyHead2D)) {
 			// Are they on our team?
-			if (!CG_OnSameTeam(game.players[game.GetLocalClientNum()].gEntity, game.players[targetIndex].gEntity)) {
+			if (!CG_OnSameTeam(game.players[game.GetLocalClientNum()].gEntity, game.players[playerIndex].gEntity)) {
 				// Are the visible?
-				if (IsTargetVisible(headBoneWall, game.players[targetIndex].cEntity)) {
+				if (IsTargetVisible(headBoneWall, game.players[playerIndex].cEntity)) {
 					// Enemy visible color
-					Drawing.DrawEspBox2D(enemyScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(0 * 255), int(1 * 255), int(0 * 255)));
+					Drawing.DrawEspBox2D(feetScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(0 * 255), int(1 * 255), int(0 * 255)));
 				}
 				else {
 					// Enemy invisible color
-					Drawing.DrawEspBox2D(enemyScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(1 * 255), int(0 * 255), int(0 * 255)));
+					Drawing.DrawEspBox2D(feetScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(1 * 255), int(0 * 255), int(0 * 255)));
 				}
 			}
 			else {
 				// Team color
-				Drawing.DrawEspBox2D(enemyScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(0 * 255), int(0 * 255), int(1 * 255)));
+				Drawing.DrawEspBox2D(feetScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(0 * 255), int(0 * 255), int(1 * 255)));
 			}
         }
     }
 }
 
-bool WorldToScreen(vec3_t world, vec2_t& screen)
+void PlayerESPNew(int playerIndex) {
+	vec3_t playerWorldPos;
+	vec3_t playerHeadPos;
+	vec2_t screenFeetPos;
+	vec2_t screenHeadPos;
+
+	// Get the player's world position (feet)
+	playerWorldPos = *game.players[playerIndex].vOrigin;
+	// Calculate player's head position
+	playerHeadPos = playerWorldPos;
+	playerHeadPos.z += 65.f; // Just adding 65.f, for a rough height of a player
+
+	// Make sure they're visible on screen
+	// And get their screen coords
+	if (WorldToScreen(playerWorldPos, screenFeetPos)) {
+		WorldToScreen(playerHeadPos, screenHeadPos);
+		Drawing.DrawEspBox2D(screenFeetPos, screenHeadPos, 1, D3DCOLOR_ARGB(255, 0, 0, 255));
+	}
+}
+
+bool WorldToScreen(vec3_t &world, vec2_t& screen)
 {
 	vec3_t Position;
 	vec3_t Transform;

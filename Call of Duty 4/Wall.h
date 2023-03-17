@@ -5,6 +5,8 @@
 #include "Drawing.h"
 #include "Game.h"
 
-void ESP(int targetIndex);
+void PlayerESP(int targetIndex);
 
-bool WorldToScreen(vec3_t world, vec2_t& screen);
+void PlayerESPNew(int playerIndex);
+
+bool WorldToScreen(vec3_t &world, vec2_t& screen);

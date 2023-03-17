@@ -26,7 +26,7 @@ public:
 
 	void DrawLine(vec2_t src, vec2_t dst, int thickness, D3DCOLOR color);
 
-	void DrawEspBox2D(vec2_t top, vec2_t bottom, int thickness, D3DCOLOR color);
+	void DrawEspBox2D(const vec2_t &top, const vec2_t &bottom, int thickness, D3DCOLOR color);
 
 	void DrawFont(const char* text, float x, float y, D3DCOLOR color);
 };

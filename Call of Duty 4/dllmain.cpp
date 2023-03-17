@@ -188,11 +188,13 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
         bGotDraw = true;
     }
 
-    /*
-        ESP
-    */
-    for (int i = 1; i < game.players.size(); i++) { // Set i to 1, skips our own player
-        ESP(i);
+
+    /* Player ESP */
+    for (int i = 0; i < game.players.size(); i++) {
+        // Only draws living players who aren't us
+        if (!game.players[i].IsAlive() || i == game.GetLocalClientNum())
+            continue;
+        PlayerESPNew(i);
     }
 
     //GetDynamicEntities(DynEntities);

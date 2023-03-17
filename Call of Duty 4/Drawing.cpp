@@ -45,17 +45,17 @@ void Drawing_t::DrawLine(vec2_t src, vec2_t dst, int thickness, D3DCOLOR color)
 	DrawLine(src.x, src.y, dst.x, dst.y, thickness, color);
 }
 
-void Drawing_t::DrawEspBox2D(vec2_t top, vec2_t bottom, int thickness, D3DCOLOR color)
+void Drawing_t::DrawEspBox2D(const vec2_t &top, const vec2_t &bottom, int thickness, D3DCOLOR color)
 {
 	int height = ABS(top.y - bottom.y);
 	vec2_t topLeft, topRight;
-	topLeft.x = top.x - height / 4;
-	topRight.x = top.x + height / 4;
+	topLeft.x = top.x - height * 0.25;
+	topRight.x = top.x + height * 0.25;
 	topLeft.y = topRight.y = top.y;
 
 	vec2_t bottomLeft, bottomRight;
-	bottomLeft.x = bottom.x - height / 4;
-	bottomRight.x = bottom.x + height / 4;
+	bottomLeft.x = bottom.x - height * 0.25;
+	bottomRight.x = bottom.x + height * 0.25;
 	bottomLeft.y = bottomRight.y = bottom.y;
 
 	DrawLine(topLeft, topRight, thickness, color);
