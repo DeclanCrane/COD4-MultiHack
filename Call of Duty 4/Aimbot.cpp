@@ -4,7 +4,6 @@ unsigned short headBone = RegisterTag("j_head", 1, 7);
 
 void DoAimbot(int target)
 {
-
 	// Check if visible and valid
 	if(!IsTargetValid(game.players[target].cEntity))
 		return;
@@ -21,28 +20,23 @@ void DoAimbot(int target)
 	delta.x = vAngles.y - pPlayerState->vViewAngles.x;
 	delta.y = vAngles.x - pPlayerState->vViewAngles.y;
 
-	if (!game.bSilentAim) {
+	// Update silent aim angles
+	if (game.bSilentAim) {
+		game.silentAngles.x = delta.x;
+		game.silentAngles.y = delta.y;
+	}
+	else { // Aimbot angles
 		pViewAngles->vViewAngles.x += delta.x;
 		pViewAngles->vViewAngles.y += delta.y;
 	}
-	else {
-		// Send angles to CL_WritePacketHook
-		if (!game.updateSilent) {
-			// If they need to be updated
-			game.silentAngles.x = delta.x;
-			game.silentAngles.y = delta.y;
-			game.updateSilent = true;
-		}
-	}
 
 	//Fire gun
-	//if (hack.bKnifeAimbot) {
-	//	FireWeaponMelee((int*)0x1280500, game.GetServerTime() + 1);
-	//}
-	//else {
-	//	//FireWeapon((gentity_s*)0x1280500, game.GetServerTime() + 1); // Change this to local player
-	//	CG_FireWeaponEasy(game.players[0].playerState, 1);
-	//}
+	if (hack.bKnifeAimbot) {
+		FireWeaponMelee((int*)0x1280500, game.GetServerTime() + 1);
+	}
+	else {
+		FireWeapon((gentity_s*)0x1280500, game.GetServerTime() + 1); // Change this to local player
+	}
 }
 
 void GetAngleToTarget(vec3_t& vTargetPos, vec3_t& vCameraPos, vec3_t& vAngles)

@@ -31,102 +31,58 @@ dvar_s* svCheats = (dvar_s*)0xCBA3808;
 std::vector<byte> bytes = { 0x90, 0x90 };
 Patch reserveAmmoPatch((void*)0x4162B2, bytes);
 
-// RenderScene
-typedef void(__cdecl* tRenderScene)(RefDef* refdef);
-tRenderScene oRenderScene;
+// R_RenderScene
+typedef void(__cdecl* _R_RenderScene)(RefDef* refdef);
+_R_RenderScene R_RenderScene;
+// CG_PredictPlayerState
+typedef void(__cdecl* _CG_PredictPlayerState)(int unk);
+_CG_PredictPlayerState CG_PredictPlayerState;
 
+// Real function name unknown
+// Used for calling engine functions
 typedef void(__cdecl* _Engine)();
 _Engine Engine;
 
+// ClientEndFrame
+// Updates every few ticks
 typedef void(__cdecl* _ClientEndFrame)(int unknown);
 _ClientEndFrame ClientEndFrame;
 
+// CL_WritePacket
+// Used for modifying network packets
 typedef void(__cdecl* _CL_WritePacket)();
 _CL_WritePacket CL_WritePacket;
-
-typedef void(__cdecl* _CG_PredictPlayerState)(int unk);
-_CG_PredictPlayerState CG_PredictPlayerState;
 
 // Make sure D3D9 device is only passed once
 static bool bGotDraw = false;
 
 void __cdecl CG_PredictPlayerStateHook(int unk) {
-    if (game.bSilentAim && game.updateSilent && pCG->snap) {
-        usercmd_s oldcmd = {};
-
-        // Get the CMD
-        GetUserCmd(*pCurrentCMDNum - 1, &oldcmd);
-
-        std::cout << "Before\n";
-        std::cout << "X:" << oldcmd.Yaw << " " << "Y: " << oldcmd.Pitch << "\n";
-
-        // Update packet time
-        oldcmd.serverTime = pCG->time + 1;
-
-        // Write angles
-        oldcmd.Yaw += ANGLE2SHORT(game.silentAngles.y);
-        oldcmd.Pitch += ANGLE2SHORT(game.silentAngles.x);
-        oldcmd.Roll += 0;
-
-        std::cout << "After\n";
-        std::cout << "X:" << oldcmd.Yaw << " " << "Y: " << oldcmd.Pitch << "\n";
-
-        game.updateSilent = false;
-    }
     CG_PredictPlayerState(unk);
 }
 
 unsigned short jBone = RegisterTag("j_head", 1, 7);
 
 void __cdecl CL_WritePacketHook() {
-    if (GetAsyncKeyState('L') & 0x01) {
-
-        // Get the bone we want
-        vec3_t vAimPos;
-        AimTarget_GetTagPos(jBone, game.players[1].cEntity, &vAimPos);
-
-        vec3_t vAngles;
-        GetAngleToTarget(vAimPos, pRefDef->vCameraPos, vAngles);
-
-        // Get Delta Angles
-        vec2_t delta;
-        delta.x = vAngles.y - pPlayerState->vViewAngles.x;
-        delta.y = vAngles.x - pPlayerState->vViewAngles.y;
-
-        std::cout << "Updating angles\n";
+    /* SILENT AIM */
+    if (GetAsyncKeyState(VK_RBUTTON) && game.bSilentAim) {
         updatedCmd_s* cmd = nullptr;
-        updatedCmd_s* oldcmd = nullptr;
 
         cmd = GetCmd((pInput->currentCmdNum & 0x7F));
-        oldcmd = GetCmd((pInput->currentCmdNum & 0x7F) - 1);
-        //*oldcmd = *cmd;
 
         cmd->serverTime += +1;
-        //pInput->currentCmdNum += 1;
 
-        //std::cout << "Added\n";
-        //std::cout << "Yaw: " << ANGLE2SHORT(game.silentAngles.y) << " " << "Pitch: " << ANGLE2SHORT(game.silentAngles.x) << " " << "Roll: " << 0 << "\n";
-
-        //std::cout << "Before\n";
-        //std::cout << "Yaw: " << oldcmd->Yaw << " " << "Pitch: " << oldcmd->Pitch << " " << "xxRoll: " << oldcmd->Roll << "\n";
-
-        cmd->Pitch += ANGLE2SHORT(delta.x);
-        cmd->Yaw += ANGLE2SHORT(delta.y);
+        cmd->Pitch += ANGLE2SHORT(game.silentAngles.x);
+        cmd->Yaw += ANGLE2SHORT(game.silentAngles.y);
         cmd->Roll = 0;
-
-        //std::cout << "After\n";
-        //std::cout << "Yaw: " << oldcmd->Yaw << " " << "Pitch: " << oldcmd->Pitch << " " << "Roll: " << oldcmd->Roll << "\n";
-
-        CL_WritePacket();
-        return;
     }
     CL_WritePacket();
 }
 
 void __cdecl EngineHook() {
-    if (GetAsyncKeyState('X') & 0x01) {
+    /* AIMBOT */
+    if (GetAsyncKeyState(VK_RBUTTON)) {
         int bestTarget = GetBestTarget();
-        if (bestTarget > 0) // If there's a valid target
+        if (bestTarget >= 0) // If there's a valid target
             DoAimbot(bestTarget);
         //Sleep(1); // Prevents jitter?
     }
@@ -183,15 +139,6 @@ void __cdecl hCG_FastTrace(CTrace* pTrace, const vec3_t StartPos, const vec3_t E
     }
 }
 
-//void FillClip(int* playerState, int weapon) {
-//    DWORD dwFunc = 0x4B65B0;
-//    __asm {
-//        mov edx, playerState;
-//        mov ecx, weapon;
-//        call dwFunc;
-//    }
-//}
-
 bool TraceIsVisible(vec3_t v3EndPos, float nHeight)
 {
     CTrace mTrace;
@@ -229,8 +176,6 @@ bool TraceIsVisible(vec3_t v3EndPos, float nHeight)
 //}
 
 D3D9Hook Hook;
-std::vector<Entity*> Entities = {};
-std::vector<DynamicEntity*> DynEntities = {};
 
 HWND hWindow = FindWindowA(0, "Call of Duty 4");
 
@@ -246,9 +191,9 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
     /*
         ESP
     */
-    //for (int i = 1; i < game.players.size(); i++) { // Set i to 1, skips our own player
-    //    ESP(i);
-    //}
+    for (int i = 1; i < game.players.size(); i++) { // Set i to 1, skips our own player
+        ESP(i);
+    }
 
     //GetDynamicEntities(DynEntities);
     //for (int i = 0; i < DynEntities.size(); i++) {
@@ -502,22 +447,19 @@ int MainThread(PVOID pModule) {
     console.CreateConsole();
     std::cout << "Running\n";
 
+    /* CONFIGS [ TEMP ] */
     game.updateSilent = true;
+    game.bSilentAim = false;
 
     // Setup EndScene Hook
     Hook.HookEndScene(hWindow, myDetour, myResetDetour);
 
-    // Hook RenderScene
-    //0x5DAB10 - RENDERSCENE
-    //0x42C120 - OTHER GAME FUNCTION
-    //oRenderScene = (tRenderScene)DetourFunction((PBYTE)0x5DAB10, (PBYTE)&newrenderscene);
-    //if (!oRenderScene)
-    //    return -1;
-
+    /* SETUP HOOKS */
     //ClientEndFrame = (_ClientEndFrame)DetourFunction((PBYTE)0x4A4D90, (PBYTE)&newClientEndFrame);
     Engine = (_Engine)DetourFunction((PBYTE)0x42DD20, (PBYTE)&EngineHook);
     CL_WritePacket = (_CL_WritePacket)DetourFunction((PBYTE)0x460270, (PBYTE)&CL_WritePacketHook);
-    /*CG_PredictPlayerState = (_CG_PredictPlayerState)DetourFunction((PBYTE)0x444A00, (PBYTE)&CG_PredictPlayerStateHook);*/
+    //CG_PredictPlayerState = (_CG_PredictPlayerState)DetourFunction((PBYTE)0x444A00, (PBYTE)&CG_PredictPlayerStateHook);
+    
     // Hack loop
     while (true) {
         if (GetAsyncKeyState(VK_END) & 0x01) {
@@ -541,8 +483,8 @@ int MainThread(PVOID pModule) {
 
     //Release Engine Hooks
     DetourRemove((PBYTE)CL_WritePacket, (PBYTE)CL_WritePacketHook);
-    /*DetourRemove((PBYTE)CG_PredictPlayerState, (PBYTE)CG_PredictPlayerStateHook);*/
     DetourRemove((PBYTE)Engine, (PBYTE)EngineHook);
+    /*DetourRemove((PBYTE)CG_PredictPlayerState, (PBYTE)CG_PredictPlayerStateHook);*/
     Sleep(100);
 
     // Clean up and exit

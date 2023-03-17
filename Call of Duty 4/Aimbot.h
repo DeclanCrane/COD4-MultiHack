@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-#define M_PI 3.14
+constexpr float M_PI = 3.14;
 
 void DoAimbot(int target);
 

@@ -4,12 +4,12 @@ unsigned short headBoneWall = RegisterTag("j_head", 1, 7);
 
 void ESP(int targetIndex)
 {
+	vec2_t enemyScreenPos;
+	vec2_t enemyHead2D;
 
+	// Make sure they're alive
     if (!game.players[targetIndex].IsAlive())
         return;
-
-    vec2_t enemyScreenPos;
-    vec2_t enemyHead2D;
 
     if (WorldToScreen(*game.players[targetIndex].vOrigin, enemyScreenPos)) {
         // Top of box
@@ -41,8 +41,10 @@ void ESP(int targetIndex)
 bool WorldToScreen(vec3_t world, vec2_t& screen)
 {
 	vec3_t Position;
-	Position = world - pRefDef->vOrigin;
 	vec3_t Transform;
+	vec2_t CenterScreen;
+
+	Position = world - pRefDef->vOrigin;
 
 	// Get our dot products from viewMatrix
 	Transform.x = Position.DotProduct(pRefDef->mViewMatrix[1]);
@@ -55,9 +57,8 @@ bool WorldToScreen(vec3_t world, vec2_t& screen)
 		return false;
 
 	// Get the center of the screen
-	vec2_t CenterScreen;
-	CenterScreen.x = pRefDef->width / 2.f;
-	CenterScreen.y = pRefDef->height / 2.f;
+	CenterScreen.x = pRefDef->width * 0.5;
+	CenterScreen.y = pRefDef->height * 0.5;
 
 	screen.x = CenterScreen.x * (1 - (Transform.x / pRefDef->tanHalfFovX / Transform.z));
 	screen.y = CenterScreen.y * (1 - (Transform.y / pRefDef->tanHalfFovY / Transform.z));
