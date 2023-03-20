@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <bitset>
 #include "COD4Enums.h"
 #include "Vec.h"
 
@@ -497,7 +498,7 @@ typedef struct playerState_s
 	float lean_f; //0x005C
 	int32_t speed; //0x0060
 	vec3_t deltaAngles; //0x0064
-	int32_t groundEntityNum; //0x0070
+	std::bitset<32> groundEntityNum; //0x0070
 	vec3_t vLadderVec; //0x0074
 	int32_t jumpTime; //0x0080
 	float jumpOriginZ; //0x0084
@@ -566,7 +567,7 @@ typedef struct playerState_s
 	float meleeChargeYaw; //0x05F0
 	int32_t meleeChargeDist; //0x05F4
 	int32_t meleeChargeTime; //0x05F8
-	int32_t perks; //0x05FC
+	std::bitset<32> perks; //0x05FC
 	char actionSlotType[4][4]; //0x0600
 	char actionSlotParam[4][4]; //0x0610
 	int32_t entityEventSequence; //0x0620

@@ -10,26 +10,7 @@ Game::Game()
 	this->gameType = CGs->gameType;
 	this->mapName = CGs->mapname;
 	this->players.reserve(MAX_PLAYERS);
-	this->updateSilent = false;
 	this->bSilentAim = false;
-}
-
-bool Game::IsInGame()
-{
-	// Valid is set to 1 if the client is in-game
-	if (clSnapshot->valid == 1)
-		return true;
-	return false;
-}
-
-int Game::GetNumEntities()
-{
-	return clSnapshot->numEntities;
-}
-
-int Game::GetNumClients()
-{
-	return clSnapshot->numClients;
 }
 
 void Game::GetPlayerList()
@@ -40,7 +21,7 @@ void Game::GetPlayerList()
 
 	for (int i = 0; i < MAX_PLAYERS; i++) {
 		Player currentPlayer(i);
-		if (currentPlayer.IsValid())
+		if (currentPlayer.IsValidPlayer())
 			this->players.push_back(currentPlayer);
 
 		// If we found them all
@@ -57,16 +38,6 @@ bool Game::HasPlayerListUpdated()
 	if (playerListSize < numClients || playerListSize > numClients)
 		return true;
 	return false;
-}
-
-int Game::GetServerTime()
-{
-	return clSnapshot->serverTime;
-}
-
-int Game::GetLocalClientNum()
-{
-	return CG->localClientNum;
 }
 
 //void Game::GetGameType(char* gameType)

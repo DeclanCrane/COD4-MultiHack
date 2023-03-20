@@ -179,6 +179,7 @@
     <ClInclude Include="NullSystem.h" />
     <ClInclude Include="Offsets.h" />
     <ClInclude Include="Structs.h" />
+    <ClInclude Include="TriggerBot.h" />
     <ClInclude Include="Vec.h" />
     <ClInclude Include="Wall.h" />
   </ItemGroup>
@@ -194,6 +195,7 @@
     <ClCompile Include="Hack.cpp" />
     <ClCompile Include="NullHooks.cpp" />
     <ClCompile Include="Offsets.cpp" />
+    <ClCompile Include="TriggerBot.cpp" />
     <ClCompile Include="Vec.cpp" />
     <ClCompile Include="Wall.cpp" />
   </ItemGroup>

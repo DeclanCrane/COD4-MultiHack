@@ -163,16 +163,6 @@ Player::Player(int clientNum)
     this->vOrigin = &gEntity->entityState.lerpEntityState.trOrigin.trBase;
 }
 
-unsigned int Player::GetWeaponID()
-{
-    return this->gEntity->entityState.weapon;
-}
-
-WeaponDef* Player::GetWeaponDef()
-{
-    return *(WeaponDef**)((GetWeaponID() * 4) + pWeaponInfoBase);
-}
-
 unsigned short Player::GetTeam()
 {
     return clientSession->clientState.team_t;
@@ -180,9 +170,7 @@ unsigned short Player::GetTeam()
 
 bool Player::IsOnGround()
 {
-    if (playerState->groundEntityNum == ON_GROUND)
-        return true;
-    return false;
+    return !playerState->groundEntityNum.test(0);
 }
 
 bool Player::IsOnLadder()
@@ -200,19 +188,20 @@ bool Player::IsOnLadder()
     return false;
 }
 
-bool Player::IsAlive()
+void Player::SetPerk(perkFlags_t perk, bool state)
 {
-    if (gEntity->client->clientSession.sessionState_t != SESS_STATE_PLAYING)
-        return false;
-    return true;
+    playerState->perks.set(perk, state);
 }
 
-bool Player::IsValid()
+void Player::RemovePerks()
 {
-    // Set to 1 if it's a valid player ( HUMAN )
-    if (gEntity->entityState.eType)
-        return true;
-    return false;
+    playerState->perks.reset();
+}
+
+void Player::GiveAllPerks()
+{
+    playerState->perks.reset();
+    playerState->perks.flip();
 }
 
 /* NOTES

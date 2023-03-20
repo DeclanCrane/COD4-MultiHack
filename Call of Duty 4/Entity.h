@@ -39,11 +39,17 @@ public:
 
 public:
     Player(int clientNum);
-    unsigned int GetWeaponID();
-    WeaponDef* GetWeaponDef();
+    inline unsigned int GetWeaponID() { return gEntity->entityState.weapon; }
+    inline WeaponDef* GetWeaponDef() { return *(WeaponDef**)((GetWeaponID() * 4) + pWeaponInfoBase); }
     unsigned short GetTeam();
     bool IsOnGround();
     bool IsOnLadder();
-    bool IsAlive();
-    bool IsValid(); // Should implement more checks
+    inline bool IsAlive() { return gEntity->client->clientSession.sessionState_t == SESS_STATE_PLAYING ? true : false; }
+    inline bool IsValidPlayer() { return gEntity->entityState.eType == PLAYER ? true : false; }
+    // Modify player's perks
+    void SetPerk(perkFlags_t perk, bool state = false);
+    // Take away all player's perks
+    void RemovePerks();
+    // Give player all perks
+    void GiveAllPerks();
 };

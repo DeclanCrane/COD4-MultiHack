@@ -36,7 +36,7 @@ void D3D9Hook::CreateD3D9Device(HWND hWindow)
 	}
 }
 
-void D3D9Hook::HookEndScene(HWND hWindow, endScene detourFunction, Reset resetFunction)
+void D3D9Hook::HookEndScene(HWND hWindow, _EndScene detourFunction, _Reset resetFunction)
 {
 	SetupD3D9Params(hWindow, WindowFinder::CheckWindowMode(hWindow));
 	CreateD3D9Device(hWindow);
@@ -47,8 +47,8 @@ void D3D9Hook::HookEndScene(HWND hWindow, endScene detourFunction, Reset resetFu
 	vTable = *reinterpret_cast<void***>(pDevice);
 
 	// Detour EndScene & Reset
-	pEndScene = (endScene)DetourFunction((PBYTE)vTable[42], (PBYTE)EndSceneDetour);
-	pReset = (Reset)DetourFunction((PBYTE)vTable[16], (PBYTE)ResetDetour);
+	pEndScene = (_EndScene)DetourFunction((PBYTE)vTable[42], (PBYTE)EndSceneDetour);
+	pReset = (_Reset)DetourFunction((PBYTE)vTable[16], (PBYTE)ResetDetour);
 }
 
 void D3D9Hook::CleanD3D9()

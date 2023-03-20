@@ -7,7 +7,7 @@ public:
 	vec3_t(float x, float y, float z);
 	vec3_t();
 public:
-	float DotProduct(const vec3_t& x);
+	inline float DotProduct(const vec3_t& x) { return this->x * x.x + this->y * x.y + this->z * x.z; }
 	float GetDistance(const vec3_t& x);
 public:
 	vec3_t operator+(const vec3_t& x);

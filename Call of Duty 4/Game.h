@@ -15,17 +15,16 @@ public:
 	char* mapName;
 	std::vector<Player> players;
 	vec2_t silentAngles;
-	bool updateSilent; // Used for updating silentAim packets
 	bool bSilentAim; // Used for toggling silent aim
 public:
 	Game();
-	bool IsInGame();
-	int GetNumEntities();
-	int GetNumClients();
+	inline bool IsInGame() { return clSnapshot->valid ? true : false; }
+	inline int GetNumEntities() { return clSnapshot->numEntities; }
+	inline int GetNumClients() { return clSnapshot->numClients; }
+	inline int GetServerTime() { return clSnapshot->serverTime; }
+	inline int GetLocalClientNum() { return CG->localClientNum; }
 	void GetPlayerList();
 	bool HasPlayerListUpdated();
-	int GetServerTime();
-	int GetLocalClientNum();
 };
 
 extern Game game;

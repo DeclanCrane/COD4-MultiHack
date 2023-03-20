@@ -30,14 +30,14 @@ public:
 	void**					vTable;
 
 	// EndScene
-	typedef HRESULT(__stdcall* endScene)(IDirect3DDevice9* pDevice);
-	endScene				pEndScene; // Original D3D9 EndScene
-	endScene				EndSceneDetour; // Detour D3D9 EndScene
+	typedef HRESULT(__stdcall* _EndScene)(IDirect3DDevice9* pDevice);
+	_EndScene				pEndScene; // Original D3D9 EndScene
+	_EndScene				EndSceneDetour; // Detour D3D9 EndScene
 
 	// D3D9 Reset
-	typedef HRESULT(__stdcall* Reset)(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
-	Reset					pReset;	// Original D3D9 Reset
-	Reset					ResetDetour; // Detour D3D9 Resetf
+	typedef HRESULT(__stdcall* _Reset)(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
+	_Reset					pReset;	// Original D3D9 Reset
+	_Reset					ResetDetour; // Detour D3D9 Resetf
 
 public:
 
@@ -51,7 +51,7 @@ public:
 	void CreateD3D9Device(HWND hWindow);
 
 	// Grabs vTable and creates a detour to EndScene and Reset
-	void HookEndScene(HWND hWindow, endScene detourFunction, Reset resetFunction);
+	void HookEndScene(HWND hWindow, _EndScene detourFunction, _Reset resetFunction);
 
 	// Cleanup
 	void CleanD3D9();

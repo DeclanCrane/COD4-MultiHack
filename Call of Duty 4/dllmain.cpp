@@ -16,6 +16,7 @@
 #include "Vec.h"
 #include "Wall.h"
 #include "NullHooks.h"
+#include "TriggerBot.h"
 
 #include <iomanip>
 
@@ -56,9 +57,9 @@ _CL_WritePacket CL_WritePacket;
 // Make sure D3D9 device is only passed once
 static bool bGotDraw = false;
 
-void __cdecl CG_PredictPlayerStateHook(int unk) {
-    CG_PredictPlayerState(unk);
-}
+//void __cdecl CG_PredictPlayerStateHook(int unk) {
+//    CG_PredictPlayerState(unk);
+//}
 
 unsigned short jBone = RegisterTag("j_head", 1, 7);
 
@@ -85,6 +86,10 @@ void __cdecl EngineHook() {
         if (bestTarget >= 0) // If there's a valid target
             DoAimbot(bestTarget);
         //Sleep(1); // Prevents jitter?
+    }
+    //TriggerBot();
+    if (GetAsyncKeyState('U') & 0x01) {
+        CG_FireWeaponEasy(game.players[0].playerState, 1);
     }
 
     Engine();
@@ -180,7 +185,7 @@ D3D9Hook Hook;
 HWND hWindow = FindWindowA(0, "Call of Duty 4");
 
 // EndScene Detour
-HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
+HRESULT __stdcall EndSceneHook(IDirect3DDevice9* pDevice)
 {
     // Pass the pDevice pointer to Drawing for drawing on screen
     if (!bGotDraw) {
@@ -426,12 +431,13 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
         //float result = BG_GetBobCycle(game.players[0].playerState);
         //std::cout << "Result: " << result << "\n";
 
-        FillClip(game.players[0].gEntity->client, game.players[0].GetWeaponID());
+        /*FillClip(game.players[0].gEntity->client, game.players[0].GetWeaponID());*/
+
+        game.players[0].RemovePerks();
     }
 
     if (GetAsyncKeyState(VK_NUMPAD5) & 0x01) {
-        std::cout << "Output: " << (*pCurrentCMDNum & 0x7F) << "\n";
-        std::cout << "New Output: " << (pInput->currentCmdNum & 0x7F) << "\n";
+        game.players[0].GiveAllPerks();
     }
 
     // Call original endScene after detour
@@ -439,7 +445,7 @@ HRESULT __stdcall myDetour(IDirect3DDevice9* pDevice)
 }
 
 // Reset Detour
-HRESULT __stdcall myResetDetour(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters)
+HRESULT __stdcall ResetHook(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
     return Hook.pReset(pDevice, pPresentationParameters);
 }
@@ -450,11 +456,10 @@ int MainThread(PVOID pModule) {
     std::cout << "Running\n";
 
     /* CONFIGS [ TEMP ] */
-    game.updateSilent = true;
-    game.bSilentAim = false;
+    game.bSilentAim = true;
 
     // Setup EndScene Hook
-    Hook.HookEndScene(hWindow, myDetour, myResetDetour);
+    Hook.HookEndScene(hWindow, EndSceneHook, ResetHook);
 
     /* SETUP HOOKS */
     //ClientEndFrame = (_ClientEndFrame)DetourFunction((PBYTE)0x4A4D90, (PBYTE)&newClientEndFrame);
@@ -462,24 +467,11 @@ int MainThread(PVOID pModule) {
     CL_WritePacket = (_CL_WritePacket)DetourFunction((PBYTE)0x460270, (PBYTE)&CL_WritePacketHook);
     //CG_PredictPlayerState = (_CG_PredictPlayerState)DetourFunction((PBYTE)0x444A00, (PBYTE)&CG_PredictPlayerStateHook);
     
-    // Hack loop
     while (true) {
         if (GetAsyncKeyState(VK_END) & 0x01) {
             std::cout << "Exiting...\n";
             break;
         }
-        // [ INFINITE AMMO ]
-        // Get our weapon id
-        //int weaponId = *(int*)(0x78C474 + 0xE8);
-        //if (weaponId) {
-        //    // Gets weapon struct?
-        //    int* pWeaponStructID = (int*)(0x78C474 + 0xEC);
-        //    // Get the clip ammo for our weapon
-        //    int* pClipAmmo = (int*)(0x131D5A8 + (weaponId * 4) + 0x35C);
-
-        //    *pClipAmmo = 69;
-        //}
-
         Hack();
     }
 
