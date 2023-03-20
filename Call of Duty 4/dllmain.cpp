@@ -17,6 +17,7 @@
 #include "Wall.h"
 #include "NullHooks.h"
 #include "TriggerBot.h"
+#include "Menu.h"
 
 #include <iomanip>
 
@@ -181,6 +182,7 @@ bool TraceIsVisible(vec3_t v3EndPos, float nHeight)
 //}
 
 D3D9Hook Hook;
+Menu menu;
 
 HWND hWindow = FindWindowA(0, "Call of Duty 4");
 
@@ -190,9 +192,14 @@ HRESULT __stdcall EndSceneHook(IDirect3DDevice9* pDevice)
     // Pass the pDevice pointer to Drawing for drawing on screen
     if (!bGotDraw) {
         Drawing.pDevice = pDevice;
+        menu.SetupImGui(hWindow, pDevice);
         bGotDraw = true;
     }
 
+    if (menu.bShowMenu && menu.bSetup)
+    {
+        menu.Draw();
+    }
 
     /* Player ESP */
     for (int i = 0; i < game.players.size(); i++) {
@@ -201,6 +208,9 @@ HRESULT __stdcall EndSceneHook(IDirect3DDevice9* pDevice)
             continue;
         PlayerESPNew(i);
     }
+
+    if (GetAsyncKeyState('N') & 0x01)
+        menu.bShowMenu = !menu.bShowMenu;
 
     //GetDynamicEntities(DynEntities);
     //for (int i = 0; i < DynEntities.size(); i++) {

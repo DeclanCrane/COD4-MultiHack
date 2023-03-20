@@ -4,6 +4,7 @@ unsigned short headBone = RegisterTag("j_head", 1, 7);
 
 void DoAimbot(int target)
 {
+	// !!!! Redundant, already done in GetBestTarget()
 	// Check if visible and valid
 	if(!IsTargetValid(game.players[target].cEntity))
 		return;
