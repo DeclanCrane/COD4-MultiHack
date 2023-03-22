@@ -37,7 +37,7 @@ public:
 	// D3D9 Reset
 	typedef HRESULT(__stdcall* _Reset)(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
 	_Reset					pReset;	// Original D3D9 Reset
-	_Reset					ResetDetour; // Detour D3D9 Resetf
+	_Reset					ResetDetour; // Detour D3D9 Reset
 
 public:
 

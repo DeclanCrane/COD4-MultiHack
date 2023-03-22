@@ -19,12 +19,11 @@ D3D9Hook::~D3D9Hook()
 	CleanD3D9();
 }
 
-
 void D3D9Hook::SetupD3D9Params(HWND hWindow, BOOL isWindowed)
 {
-	d3dparams.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	d3dparams.hDeviceWindow = hWindow;
-	d3dparams.Windowed = isWindowed;
+	this->d3dparams.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	this->d3dparams.hDeviceWindow = hWindow;
+	this->d3dparams.Windowed = isWindowed;
 }
 
 void D3D9Hook::CreateD3D9Device(HWND hWindow)
@@ -36,15 +35,16 @@ void D3D9Hook::CreateD3D9Device(HWND hWindow)
 	}
 }
 
-void D3D9Hook::HookEndScene(HWND hWindow, _EndScene detourFunction, _Reset resetFunction)
+void D3D9Hook::HookEndScene(HWND hWindow, _EndScene EndSceneDetour, _Reset ResetDetour)
 {
+	this->EndSceneDetour = EndSceneDetour;
+	this->ResetDetour = ResetDetour;
+
 	SetupD3D9Params(hWindow, WindowFinder::CheckWindowMode(hWindow));
 	CreateD3D9Device(hWindow);
-	EndSceneDetour = detourFunction;
-	ResetDetour = resetFunction;
 
-	// Get the vTable
-	vTable = *reinterpret_cast<void***>(pDevice);
+	// Get the D3D9 vTable
+	this->vTable = *reinterpret_cast<void***>(pDevice);
 
 	// Detour EndScene & Reset
 	pEndScene = (_EndScene)DetourFunction((PBYTE)vTable[42], (PBYTE)EndSceneDetour);
@@ -57,7 +57,10 @@ void D3D9Hook::CleanD3D9()
 	DetourRemove((PBYTE)pEndScene, (PBYTE)EndSceneDetour);
 	DetourRemove((PBYTE)pReset, (PBYTE)ResetDetour);
 
-	// Call reset after ejecting so some games don't crash
+	/*	
+		Call reset after removing detours,
+		prevents some application crashes.
+	*/
 	pReset(pDevice, &d3dparams);
 
 	pDevice->Release();

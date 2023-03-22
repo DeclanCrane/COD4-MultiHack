@@ -4,6 +4,7 @@ Menu::Menu()
 {
 	hWnd = nullptr;
 	pD3DDevice = nullptr;
+	pWndProc = nullptr;
 	// Has menu been setup
 	bSetup = false;
 	// Should menu be shown
@@ -12,7 +13,7 @@ Menu::Menu()
 
 Menu::~Menu()
 {
-	SetWindowLongPtr(this->hWnd, GWL_WNDPROC, (LONG)g_pWndProc);
+	SetWindowLongPtr(this->hWnd, GWL_WNDPROC, (LONG)pWndProc);
 	ImGui_ImplDX9_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
@@ -25,9 +26,12 @@ void Menu::SetupImGui(HWND hWnd, LPDIRECT3DDEVICE9 pD3DDevice)
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+
+	// Hardcore config flags for now
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	
+	// Hardcode style for now
 	ImGui::StyleColorsDark();
 
 	SetupImGuiBackend();
@@ -38,8 +42,8 @@ void Menu::SetupImGui(HWND hWnd, LPDIRECT3DDEVICE9 pD3DDevice)
 
 void Menu::SetupImGuiInput()
 {
-	// Hook main applications WndProc
-	g_pWndProc = (WNDPROC)SetWindowLongPtr(this->hWnd, GWL_WNDPROC, (LONG)WndProc);
+	// Hook main application's WndProc
+	pWndProc = (WNDPROC)SetWindowLongPtr(this->hWnd, GWL_WNDPROC, (LONG)WndProc);
 }
 
 void Menu::Draw()
@@ -68,5 +72,6 @@ LRESULT __stdcall WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam))
 		return true;
 
-	return CallWindowProc(g_pWndProc, hWnd, uMsg, wParam, lParam);
+	Menu& menu = Menu::Get();
+	return CallWindowProc(menu.GetWndProc(), hWnd, uMsg, wParam, lParam);
 }

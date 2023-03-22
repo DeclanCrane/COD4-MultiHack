@@ -66,13 +66,16 @@ unsigned short jBone = RegisterTag("j_head", 1, 7);
 
 void __cdecl CL_WritePacketHook() {
     /* SILENT AIM */
-    if (GetAsyncKeyState(VK_RBUTTON) && game.bSilentAim) {
+    if (game.bSilentAim && GetAsyncKeyState(VK_RBUTTON)) {
         updatedCmd_s* cmd = nullptr;
 
+        // Get the current cmd
         cmd = GetCmd((pInput->currentCmdNum & 0x7F));
 
-        cmd->serverTime += +1;
+        // Advance the time
+        cmd->serverTime += 1;
 
+        // Set angles
         cmd->Pitch += ANGLE2SHORT(game.silentAngles.x);
         cmd->Yaw += ANGLE2SHORT(game.silentAngles.y);
         cmd->Roll = 0;
@@ -181,10 +184,9 @@ bool TraceIsVisible(vec3_t v3EndPos, float nHeight)
 //        }
 //}
 
-D3D9Hook Hook;
-Menu menu;
-
-HWND hWindow = FindWindowA(0, "Call of Duty 4");
+static D3D9Hook Hook;
+static Menu& menu = Menu::Get();
+static HWND hWindow = FindWindowA(0, "Call of Duty 4");
 
 // EndScene Detour
 HRESULT __stdcall EndSceneHook(IDirect3DDevice9* pDevice)
@@ -196,10 +198,6 @@ HRESULT __stdcall EndSceneHook(IDirect3DDevice9* pDevice)
         bGotDraw = true;
     }
 
-    if (menu.bShowMenu && menu.bSetup)
-    {
-        menu.Draw();
-    }
 
     /* Player ESP */
     for (int i = 0; i < game.players.size(); i++) {
@@ -209,22 +207,17 @@ HRESULT __stdcall EndSceneHook(IDirect3DDevice9* pDevice)
         PlayerESPNew(i);
     }
 
-    if (GetAsyncKeyState('N') & 0x01)
-        menu.bShowMenu = !menu.bShowMenu;
+    if (GetAsyncKeyState('N') & 0x01) {
+        menu.ToggleMenu();
+    }
+
+    if (menu.IsOpen()) {
+        menu.Draw();
+    }
 
     //GetDynamicEntities(DynEntities);
     //for (int i = 0; i < DynEntities.size(); i++) {
     //    Wall(DynEntities[i], pRefDef);
-    //}
-
-    /*
-        AIMBOT
-    */
-    //if (GetAsyncKeyState('X') & 0x01) {
-    //    int bestTarget = GetBestTarget();
-    //    if (bestTarget > 0) // If there's a valid target
-    //        DoAimbot(bestTarget);
-    //    Sleep(1); // Prevents jitter?
     //}
 
     if (GetAsyncKeyState(VK_LEFT) & 0x01) {
@@ -461,6 +454,7 @@ HRESULT __stdcall ResetHook(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pP
 }
 
 int MainThread(PVOID pModule) {
+    // Create console ( Console class needs rewrite )
     Console console;
     console.CreateConsole();
     std::cout << "Running\n";
