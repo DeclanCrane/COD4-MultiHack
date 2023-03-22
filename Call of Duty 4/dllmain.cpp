@@ -184,6 +184,13 @@ bool TraceIsVisible(vec3_t v3EndPos, float nHeight)
 //        }
 //}
 
+bool bShowDemoMenu = true;
+void myMenuFunction() {
+    ImGui::ShowDemoWindow(&bShowDemoMenu);
+    ImGui::Begin("Hello, World");
+    ImGui::End();
+}
+
 static D3D9Hook Hook;
 static Menu& menu = Menu::Get();
 static HWND hWindow = FindWindowA(0, "Call of Duty 4");
@@ -207,12 +214,12 @@ HRESULT __stdcall EndSceneHook(IDirect3DDevice9* pDevice)
         PlayerESPNew(i);
     }
 
-    if (GetAsyncKeyState('N') & 0x01) {
+    if (GetAsyncKeyState(VK_INSERT) & 0x01) {
         menu.ToggleMenu();
     }
 
     if (menu.IsOpen()) {
-        menu.Draw();
+        menu.Draw(&myMenuFunction);
     }
 
     //GetDynamicEntities(DynEntities);

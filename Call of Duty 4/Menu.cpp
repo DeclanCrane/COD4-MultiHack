@@ -46,7 +46,7 @@ void Menu::SetupImGuiInput()
 	pWndProc = (WNDPROC)SetWindowLongPtr(this->hWnd, GWL_WNDPROC, (LONG)WndProc);
 }
 
-void Menu::Draw()
+void Menu::Draw(void(*myMenu)())
 {
 	ImGui::GetIO().MouseDrawCursor = true;
 
@@ -54,7 +54,7 @@ void Menu::Draw()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	ImGui::ShowDemoWindow(&bShowMenu);
+	myMenu();
 
 	ImGui::EndFrame();
 	ImGui::Render();

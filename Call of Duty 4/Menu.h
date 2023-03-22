@@ -25,8 +25,10 @@ public:
 	void operator=(Menu const&) = delete; // Don't implement
 
 	static Menu& Get() { static Menu instance; return instance; }
+
 	void SetupImGui(HWND hWnd, LPDIRECT3DDEVICE9 pD3DDevice);
-	void Draw();
+	// Pass in your own ImGui menu code to be drawn
+	void Draw(void(*myMenu)());
 	inline WNDPROC GetWndProc() { return pWndProc; }
 	inline bool ToggleMenu() { bShowMenu = !bShowMenu; return bShowMenu; }
 	inline bool IsOpen() { return bShowMenu ? true : false; }
