@@ -10,10 +10,8 @@ void Hack()
 	}
 
 	// Get player list
-	// This bugs out if a player leaves the game
 	if (game.HasPlayerListUpdated()) {
 		game.GetPlayerList();
-		Sleep(10);
 		std::cout << "Num Clients: " << game.GetNumClients() << "\n";
 		std::cout << "Num Players List: " << game.players.size() << "\n";
 		std::cout << "Updating players\n";
@@ -39,10 +37,6 @@ void Hack()
 		if(!hack.bKnifeAimbot)
 			*(float*)(0xCBB3A9C + 0xC) = 64.f;
 		std::cout << "Knife Aimbot Toggled\n";
-	}
-
-	if (GetAsyncKeyState('N') & 0x01) {
-		std::cout << game.players[0].GetWeaponID() << "\n";
 	}
 }
 

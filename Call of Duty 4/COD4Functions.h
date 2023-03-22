@@ -86,6 +86,21 @@ extern _BulletGetDamage BulletGetDamage;
 typedef bool(__cdecl* _BG_AdvanceTrace)(BulletFireParams* bfp, BulletTraceResults* btr, float amount);
 extern _BG_AdvanceTrace BG_AdvanceTrace;
 
+// Real function name unknown
+// Used for calling engine functions
+typedef void(__cdecl* _Engine)();
+extern _Engine Engine;
+
+// ClientEndFrame
+// Updates every few ticks
+typedef void(__cdecl* _ClientEndFrame)(int unknown);
+extern _ClientEndFrame ClientEndFrame;
+
+// CL_WritePacket
+// Used for modifying network packets
+typedef void(__cdecl* _CL_WritePacket)();
+extern _CL_WritePacket CL_WritePacket;
+
 void G_GetPlayerViewOrigin(int* client, vec3_t* origin);
 
 void GetViewDirection(int* client, vec3_t* forward, vec3_t* right, vec3_t* up);

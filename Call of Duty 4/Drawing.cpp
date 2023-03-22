@@ -25,7 +25,7 @@ void Drawing_t::DrawFilledRect(int screenX, int screenY, int rectWidth, int rect
 	pDevice->Clear(1, &rect, D3DCLEAR_TARGET, color, 0, 0);
 }
 
-void Drawing_t::DrawLine(int x1, int y1, int x2, int y2, int thickness, D3DCOLOR color)
+void Drawing_t::DrawLine(int x1, int y1, int x2, int y2, int thickness, const D3DCOLOR &color)
 {
 	// Only creates line once
 	if(!lineL)
@@ -40,12 +40,12 @@ void Drawing_t::DrawLine(int x1, int y1, int x2, int y2, int thickness, D3DCOLOR
 	lineL->Draw(Line, 2, color);
 }
 
-void Drawing_t::DrawLine(vec2_t src, vec2_t dst, int thickness, D3DCOLOR color)
+void Drawing_t::DrawLine(const vec2_t &src, const vec2_t &dst, int thickness, const D3DCOLOR &color)
 {
 	DrawLine(src.x, src.y, dst.x, dst.y, thickness, color);
 }
 
-void Drawing_t::DrawEspBox2D(const vec2_t &top, const vec2_t &bottom, int thickness, D3DCOLOR color)
+void Drawing_t::DrawEspBox2D(const vec2_t &top, const vec2_t &bottom, int thickness, const D3DCOLOR &color)
 {
 	int height = ABS(top.y - bottom.y);
 	vec2_t topLeft, topRight;

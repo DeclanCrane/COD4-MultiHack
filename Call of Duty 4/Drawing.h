@@ -22,11 +22,11 @@ public:
 
 	void DrawFilledRect(int screenX, int screenY, int rectWidth, int rectHeight, D3DCOLOR color);
 
-	void DrawLine(int x1, int y1, int x2, int y2, int thickness, D3DCOLOR color);
+	void DrawLine(int x1, int y1, int x2, int y2, int thickness, const D3DCOLOR &color);
 
-	void DrawLine(vec2_t src, vec2_t dst, int thickness, D3DCOLOR color);
+	void DrawLine(const vec2_t &src, const vec2_t &dst, int thickness, const D3DCOLOR &color);
 
-	void DrawEspBox2D(const vec2_t &top, const vec2_t &bottom, int thickness, D3DCOLOR color);
+	void DrawEspBox2D(const vec2_t &top, const vec2_t &bottom, int thickness, const D3DCOLOR &color);
 
 	void DrawFont(const char* text, float x, float y, D3DCOLOR color);
 };

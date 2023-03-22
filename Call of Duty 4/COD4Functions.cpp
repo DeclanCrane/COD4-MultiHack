@@ -13,6 +13,11 @@ _BG_GetPlayerViewOrigin BG_GetPlayerViewOrigin = (_BG_GetPlayerViewOrigin)0x04A5
 _BulletGetDamage BulletGetDamage = (_BulletGetDamage)0x4A1E40;
 _BG_AdvanceTrace BG_AdvanceTrace = (_BG_AdvanceTrace)0x414BF0;
 
+// These functions are used in hooks
+_Engine Engine = nullptr;
+_CL_WritePacket CL_WritePacket = nullptr;
+_ClientEndFrame ClientEndFrame = nullptr;
+
 bool CG_OnSameTeam(gentity_s* gEnt, gentity_s* gEnt2) {
     int bSameTeam = 0;
     int fnOnSameTeam = 0x4DB990;

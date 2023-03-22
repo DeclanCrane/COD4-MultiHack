@@ -33,34 +33,8 @@ dvar_s* svCheats = (dvar_s*)0xCBA3808;
 std::vector<byte> bytes = { 0x90, 0x90 };
 Patch reserveAmmoPatch((void*)0x4162B2, bytes);
 
-// R_RenderScene
-typedef void(__cdecl* _R_RenderScene)(RefDef* refdef);
-_R_RenderScene R_RenderScene;
-// CG_PredictPlayerState
-typedef void(__cdecl* _CG_PredictPlayerState)(int unk);
-_CG_PredictPlayerState CG_PredictPlayerState;
-
-// Real function name unknown
-// Used for calling engine functions
-typedef void(__cdecl* _Engine)();
-_Engine Engine;
-
-// ClientEndFrame
-// Updates every few ticks
-typedef void(__cdecl* _ClientEndFrame)(int unknown);
-_ClientEndFrame ClientEndFrame;
-
-// CL_WritePacket
-// Used for modifying network packets
-typedef void(__cdecl* _CL_WritePacket)();
-_CL_WritePacket CL_WritePacket;
-
 // Make sure D3D9 device is only passed once
 static bool bGotDraw = false;
-
-//void __cdecl CG_PredictPlayerStateHook(int unk) {
-//    CG_PredictPlayerState(unk);
-//}
 
 unsigned short jBone = RegisterTag("j_head", 1, 7);
 
@@ -99,36 +73,8 @@ void __cdecl EngineHook() {
     Engine();
 }
 
-//void __cdecl newClientEndFrame(int unknown) {
-//    if (GetAsyncKeyState(VK_NUMPAD1) & 0x01) {
-//        /*headBone = RegisterTag("j_head", 1, 7);*/
-//        //if (AimTarget_IsTargetVisible(headBone, (int*)(0x08474B4))) {
-//        //    std::cout << "Visible\n";
-//        //}
-//        //else {
-//        //    std::cout << "Invisible\n";
-//        //}
-//        //vec3_t bonePos = {};
-//        //GetTagPos_0(headBone, (int*)(0x08474B4), &bonePos);
-//        //std::cout << "X: " << bonePos.x << std::endl;
-//    }
-//    ClientEndFrame(unknown);
-//}
 
-//void __cdecl myRenderScene() {
-//    int a = 1;
-//    a += 1;
-//}
-//
-//void __cdecl newrenderscene(RefDef* rd)
-//{
-//    _asm pushad;
-//    myRenderScene();
-//    _asm popad;
-//    oRenderScene(rd);
-//}
-
-void __cdecl hCG_FastTrace(CTrace* pTrace, const vec3_t StartPos, const vec3_t EndPos, vec3_t Min, vec3_t Max, int iSkipNum, DWORD dwTraceFlags)
+void __cdecl CG_FastTrace(CTrace* pTrace, const vec3_t StartPos, const vec3_t EndPos, vec3_t Min, vec3_t Max, int iSkipNum, DWORD dwTraceFlags)
 {
     DWORD dwTraceAddress = 0x0456800;
 
@@ -148,41 +94,14 @@ void __cdecl hCG_FastTrace(CTrace* pTrace, const vec3_t StartPos, const vec3_t E
     }
 }
 
-bool TraceIsVisible(vec3_t v3EndPos, float nHeight)
+bool TraceIsVisible(vec3_t endPos, float nHeight)
 {
     CTrace mTrace;
-    v3EndPos.z += nHeight;
-    vec3_t v3Zero = { 0.0f, 0.0f, 0.0f };
-    hCG_FastTrace(&mTrace, pRefDef->vCameraPos, v3EndPos, v3Zero, v3Zero, 0, 0x2803001);
+    endPos.z += nHeight;
+    vec3_t zero = { 0.0f, 0.0f, 0.0f };
+    CG_FastTrace(&mTrace, pRefDef->vCameraPos, endPos, zero, zero, 0, 0x2803001);
     return(mTrace.Fraction == 1.0f);
 }
-
-//void WallDynEntity(DynamicEntity* pEntity, RefDef* refdef)
-//{
-//
-//        vec2_t enemyScreenPos;
-//        vec2_t enemyHead2D;
-//
-//        if (Drawing.WorldToScreen(pEntity->vOrigin, enemyScreenPos, refdef)) {
-//
-//            // Line ESP
-//            if (true)
-//            {
-//                Drawing.DrawLine(enemyScreenPos.x, enemyScreenPos.y, refdef->width / 2, refdef->height, 1,
-//                    D3DCOLOR_ARGB(255, int(0 * 255), int(1 * 255), int(0 * 255)));
-//            }
-//
-//            // Top of box
-//            vec3_t vHeadOrigin;
-//            vHeadOrigin.x = pEntity->vOrigin.x;
-//            vHeadOrigin.y = pEntity->vOrigin.y;
-//            vHeadOrigin.z = pEntity->vOrigin.z + 15.f; // Height of Zombie / Bot
-//
-//            if (Drawing.WorldToScreen(vHeadOrigin, enemyHead2D, refdef)) {
-//                Drawing.DrawEspBox2D(enemyScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(1 * 255), int(0 * 255), int(0 * 255)));
-//            }
-//        }
-//}
 
 bool bShowDemoMenu = true;
 void myMenuFunction() {
@@ -473,10 +392,8 @@ int MainThread(PVOID pModule) {
     Hook.HookEndScene(hWindow, EndSceneHook, ResetHook);
 
     /* SETUP HOOKS */
-    //ClientEndFrame = (_ClientEndFrame)DetourFunction((PBYTE)0x4A4D90, (PBYTE)&newClientEndFrame);
     Engine = (_Engine)DetourFunction((PBYTE)0x42DD20, (PBYTE)&EngineHook);
     CL_WritePacket = (_CL_WritePacket)DetourFunction((PBYTE)0x460270, (PBYTE)&CL_WritePacketHook);
-    //CG_PredictPlayerState = (_CG_PredictPlayerState)DetourFunction((PBYTE)0x444A00, (PBYTE)&CG_PredictPlayerStateHook);
     
     while (true) {
         if (GetAsyncKeyState(VK_END) & 0x01) {
