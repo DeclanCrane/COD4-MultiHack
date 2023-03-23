@@ -71,16 +71,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(SolutionDir)Lib;$(DXSDK_DIR)Lib\x86\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Lib\;$(DXSDK_DIR)Lib\x86\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>$(SolutionDir)Lib;$(DXSDK_DIR)Lib\x86\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Lib\;$(DXSDK_DIR)Lib\x86\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>$(SolutionDir)Lib;$(DXSDK_DIR)Lib\x86\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Lib\;$(DXSDK_DIR)Lib\x86\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LibraryPath>$(SolutionDir)Lib;$(DXSDK_DIR)Lib\x86\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Lib\;$(DXSDK_DIR)Lib\x86\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -178,6 +178,7 @@
     <ClInclude Include="COD4Functions.h" />
     <ClInclude Include="COD4Structs.h" />
     <ClInclude Include="Console.h" />
+    <ClInclude Include="D3D9Hook.h" />
     <ClInclude Include="Drawing.h" />
     <ClInclude Include="EndScene.h" />
     <ClInclude Include="Entity.h" />
@@ -203,6 +204,7 @@
     <ClCompile Include="Aimbot.cpp" />
     <ClCompile Include="COD4Functions.cpp" />
     <ClCompile Include="Console.cpp" />
+    <ClCompile Include="D3D9Hook.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Drawing.cpp" />
     <ClCompile Include="EndScene.cpp" />
@@ -211,6 +213,7 @@
     <ClCompile Include="Hack.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="NullHooks.cpp" />
+    <ClCompile Include="NullSystem.cpp" />
     <ClCompile Include="Offsets.cpp" />
     <ClCompile Include="TriggerBot.cpp" />
     <ClCompile Include="Vec.cpp" />

@@ -1,51 +1,44 @@
 #include "Drawing.h"
 #include <iostream>
 
-Drawing_t Drawing;
+D3D9Drawing drawing;
 
-Drawing_t::Drawing_t()
+D3D9Drawing::~D3D9Drawing()
 {
-	pDevice		= nullptr;
-	lineL		= nullptr;
-	font		= nullptr;
-}
-
-Drawing_t::~Drawing_t()
-{
-	if(lineL)
-		lineL->Release();
+	if(line)
+		line->Release();
 
 	if(font)
 		font->Release();
 }
 
-void Drawing_t::DrawFilledRect(int screenX, int screenY, int rectWidth, int rectHeight, D3DCOLOR color)
+void D3D9Drawing::DrawFilledRect(int screenX, int screenY, int rectWidth, int rectHeight, D3DCOLOR color)
 {
 	D3DRECT rect = { screenX, screenY, screenX + rectWidth, screenY + rectHeight };
 	pDevice->Clear(1, &rect, D3DCLEAR_TARGET, color, 0, 0);
 }
 
-void Drawing_t::DrawLine(int x1, int y1, int x2, int y2, int thickness, const D3DCOLOR &color)
+void D3D9Drawing::DrawLine(int x1, int y1, int x2, int y2, int thickness, const D3DCOLOR &color)
 {
 	// Only creates line once
-	if(!lineL)
-		D3DXCreateLine(pDevice, &lineL);
+	if(!line)
+		D3DXCreateLine(pDevice, &line);
 
 	D3DXVECTOR2 Line[2];
 
 	Line[0] = D3DXVECTOR2(x1, y1);
 	Line[1] = D3DXVECTOR2(x2, y2);
 
-	lineL->SetWidth(thickness);
-	lineL->Draw(Line, 2, color);
+	line->SetWidth(thickness);
+	line->Draw(Line, 2, color);
 }
 
-void Drawing_t::DrawLine(const vec2_t &src, const vec2_t &dst, int thickness, const D3DCOLOR &color)
+void D3D9Drawing::DrawLine(const vec2_t &src, const vec2_t &dst, int thickness, const D3DCOLOR &color)
 {
 	DrawLine(src.x, src.y, dst.x, dst.y, thickness, color);
 }
 
-void Drawing_t::DrawEspBox2D(const vec2_t &top, const vec2_t &bottom, int thickness, const D3DCOLOR &color)
+void D3D9Drawing::DrawEspBox2D(const vec2_t &top, const vec2_t &bottom, int thickness, const D3DCOLOR &color)
 {
 	int height = ABS(top.y - bottom.y);
 	vec2_t topLeft, topRight;
@@ -64,7 +57,7 @@ void Drawing_t::DrawEspBox2D(const vec2_t &top, const vec2_t &bottom, int thickn
 	DrawLine(topRight, bottomRight, thickness, color);
 }
 
-void Drawing_t::DrawFont(const char* text, float x, float y, D3DCOLOR color)
+void D3D9Drawing::DrawFont(const char* text, float x, float y, D3DCOLOR color)
 {
 	// Only creates font once
 	if(!font)

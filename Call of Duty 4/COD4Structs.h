@@ -673,25 +673,7 @@ typedef struct cpose_t
 	char zUnknown[12][4]; //0x0034
 } cpose_t; //Size: 0x0064
 
-typedef struct usercmd_s
-{
-	int32_t serverTime; //0x0000
-	int8_t bHoldingShift; //0x0004
-	int8_t Stance; //0x0005
-	int8_t InMenu; //0x0006
-	int8_t N0001E138; //0x0007
-	int32_t Pitch; //0x0008
-	int32_t Yaw; //0x000C
-	int32_t Roll; //0x0010
-	int8_t WeaponIndex; //0x0014
-	int8_t OffHandIndex; //0x0015
-	int8_t ForwardBackward; //0x0016
-	int8_t LeftRight; //0x0017
-	int32_t zJunk; //0x0018
-	int32_t zJunk2; //0x001C
-} usercmd_s; //Size: 0x0020
-
-struct updatedCmd_s {
+struct usercmd_s {
 	int serverTime; // 0x0
 	int eFlags; // 0x4
 	int Pitch; // 0x8
@@ -702,7 +684,7 @@ struct updatedCmd_s {
 
 struct input_t
 {
-	updatedCmd_s cmds[128];
+	usercmd_s cmds[128];
 	int currentCmdNum;
 }; //Size: 0x1004
 

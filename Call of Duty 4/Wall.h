@@ -4,6 +4,7 @@
 #include "Entity.h"
 #include "Drawing.h"
 #include "Game.h"
+#include "Hack.h"
 
 void PlayerESP(int targetIndex);
 

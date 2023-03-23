@@ -8,17 +8,24 @@
 #include "COD4Structs.h"
 #include "Offsets.h"
 
-class Drawing_t {
-public:
-	IDirect3DDevice9 * pDevice;
+class D3D9Drawing {
+private:
+	IDirect3DDevice9* pDevice;
 
-	ID3DXLine* lineL;
+	ID3DXLine* line;
 
 	ID3DXFont* font;
 
-	Drawing_t();
+	// True if instance has D3D9 device pointer
+	bool bSetup;
+public:
+	D3D9Drawing() : pDevice(nullptr), line(nullptr), font(nullptr), bSetup(false) {};
 
-	~Drawing_t();
+	~D3D9Drawing();
+
+	bool IsSetup() { return bSetup ? true : false; }
+
+	void Setup(IDirect3DDevice9* pDevice) { this->pDevice = pDevice; bSetup = true; }
 
 	void DrawFilledRect(int screenX, int screenY, int rectWidth, int rectHeight, D3DCOLOR color);
 
@@ -31,4 +38,4 @@ public:
 	void DrawFont(const char* text, float x, float y, D3DCOLOR color);
 };
 
-extern Drawing_t Drawing;
+extern D3D9Drawing drawing;

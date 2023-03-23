@@ -14,8 +14,6 @@ public:
 	char* gameType;
 	char* mapName;
 	std::vector<Player> players;
-	vec2_t silentAngles;
-	bool bSilentAim; // Used for toggling silent aim
 public:
 	Game();
 	inline bool IsInGame() { return clSnapshot->valid ? true : false; }

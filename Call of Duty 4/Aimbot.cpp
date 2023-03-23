@@ -22,9 +22,9 @@ void DoAimbot(int target)
 	delta.y = vAngles.x - pPlayerState->vViewAngles.y;
 
 	// Update silent aim angles
-	if (game.bSilentAim) {
-		game.silentAngles.x = delta.x;
-		game.silentAngles.y = delta.y;
+	if (hack.bSilentAim) {
+		hack.vSilentAngles.x = delta.x;
+		hack.vSilentAngles.y = delta.y;
 	}
 	else { // Aimbot angles
 		pViewAngles->vViewAngles.x += delta.x;

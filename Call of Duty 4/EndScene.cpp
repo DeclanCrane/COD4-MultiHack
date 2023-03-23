@@ -1,4 +1,5 @@
 #include "EndScene.h"
+#include "D3D9Hook.h"
 
 
 D3D9Hook::D3D9Hook()
@@ -49,6 +50,8 @@ void D3D9Hook::HookEndScene(HWND hWindow, _EndScene EndSceneDetour, _Reset Reset
 	// Detour EndScene & Reset
 	pEndScene = (_EndScene)DetourFunction((PBYTE)vTable[42], (PBYTE)EndSceneDetour);
 	pReset = (_Reset)DetourFunction((PBYTE)vTable[16], (PBYTE)ResetDetour);
+
+	pDevice->Release();
 }
 
 void D3D9Hook::CleanD3D9()

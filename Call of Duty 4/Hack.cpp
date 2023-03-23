@@ -9,19 +9,12 @@ void Hack()
 		return;
 	}
 
-	// Get player list
+	// Get and update player list
 	if (game.HasPlayerListUpdated()) {
 		game.GetPlayerList();
 		std::cout << "Num Clients: " << game.GetNumClients() << "\n";
 		std::cout << "Num Players List: " << game.players.size() << "\n";
 		std::cout << "Updating players\n";
-	}
-
-	if (GetAsyncKeyState(VK_RIGHT) & 0x01) {
-		if (game.players.size() < 2)
-			return;
-		int distance = game.players[0].vOrigin->GetDistance(*game.players[1].vOrigin);
-		std::cout << "Distance: " << distance << "\n";
 	}
 
 	// Toggle rage
@@ -38,10 +31,4 @@ void Hack()
 			*(float*)(0xCBB3A9C + 0xC) = 64.f;
 		std::cout << "Knife Aimbot Toggled\n";
 	}
-}
-
-HackSettings::HackSettings()
-{
-	bRage = false;
-	bKnifeAimbot = false;
 }

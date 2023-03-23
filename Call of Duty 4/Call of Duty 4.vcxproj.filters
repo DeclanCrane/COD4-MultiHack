@@ -22,6 +22,12 @@
     <Filter Include="ImGui">
       <UniqueIdentifier>{d3ecb14d-93cf-4ce0-af97-a133fc3d0808}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Util">
+      <UniqueIdentifier>{0cd4bd1d-6ff1-4964-8c06-109730a60491}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3D9Hook">
+      <UniqueIdentifier>{b60a2a03-30bc-4f91-b8d2-c8d195b96b10}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Structs.h">
@@ -34,9 +40,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Drawing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NullSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="COD4Constants.h">
@@ -108,6 +111,12 @@
     <ClInclude Include="..\Include\ImGui\imconfig.h">
       <Filter>ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="NullSystem.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D9Hook.h">
+      <Filter>D3D9Hook</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -175,6 +184,12 @@
     </ClCompile>
     <ClCompile Include="..\Include\ImGui\imgui.cpp">
       <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="NullSystem.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D9Hook.cpp">
+      <Filter>D3D9Hook</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

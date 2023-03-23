@@ -1,5 +1,6 @@
 #pragma once
 #include "COD4Structs.h";
+#include "Offsets.h"
 
 // Unfinished, doesn't return string
 // Works though
@@ -207,6 +208,15 @@ float BG_GetBobCycle(playerState_s* ps);
 // Returns CMD for modifying packets in CL_WritePacket
 int GetUserCmd(int currentCmdNum, usercmd_s* cmd);
 
+// Returns CMD for modifying packets
+usercmd_s* GetCmd(int cmd);
+
 // Decrements player's reserve ammo, and fills clip
 // Only if reserve ammo if available
 void FillClip(gclient_s* client, int weapId);
+
+
+void __cdecl CG_FastTrace(CTrace* pTrace, const vec3_t StartPos, const vec3_t EndPos, vec3_t Min, vec3_t Max, int iSkipNum, DWORD dwTraceFlags);
+
+// Uses CG_FastTrace to check if player is visible
+bool TraceIsVisible(vec3_t endPos, float nHeight);

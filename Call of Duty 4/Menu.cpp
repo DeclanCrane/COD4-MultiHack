@@ -1,22 +1,8 @@
 #include "Menu.h"
 
-Menu::Menu()
-{
-	hWnd = nullptr;
-	pD3DDevice = nullptr;
-	pWndProc = nullptr;
-	// Has menu been setup
-	bSetup = false;
-	// Should menu be shown
-	bShowMenu = false;
-}
-
 Menu::~Menu()
 {
-	SetWindowLongPtr(this->hWnd, GWL_WNDPROC, (LONG)pWndProc);
-	ImGui_ImplDX9_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+	//Destroy();
 }
 
 void Menu::SetupImGui(HWND hWnd, LPDIRECT3DDEVICE9 pD3DDevice)
@@ -65,6 +51,15 @@ void Menu::SetupImGuiBackend()
 {
 	ImGui_ImplWin32_Init(hWnd);
 	ImGui_ImplDX9_Init(pD3DDevice);
+}
+
+void Menu::Destroy()
+{
+	SetWindowLongPtr(this->hWnd, GWL_WNDPROC, (LONG)pWndProc);
+
+	ImGui_ImplDX9_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }
 
 LRESULT __stdcall WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

@@ -624,6 +624,10 @@ int GetUserCmd(int currentCmdNum, usercmd_s* cmd)
     return 0;
 }
 
+usercmd_s* GetCmd(int cmd) {
+    return &pInput->cmds[cmd];
+}
+
 void FillClip(gclient_s* client, int weapId)
 {
     int func = 0x4B65B0;
@@ -634,10 +638,31 @@ void FillClip(gclient_s* client, int weapId)
     }
 }
 
-//void CL_WritePacket()
-//{
-//    int func = 0x460270;
-//    __asm {
-//        call func;
-//    }
-//}
+void __cdecl CG_FastTrace(CTrace* pTrace, const vec3_t StartPos, const vec3_t EndPos, vec3_t Min, vec3_t Max, int iSkipNum, DWORD dwTraceFlags)
+{
+    DWORD dwTraceAddress = 0x0456800;
+
+    _asm
+    {
+        PUSH 0;
+        PUSH 0;
+        PUSH dwTraceFlags;
+        PUSH iSkipNum;
+        PUSH EndPos;
+        PUSH Max;
+        PUSH StartPos;
+        MOV EDI, pTrace;
+        MOV EAX, Min;
+        CALL[dwTraceAddress];
+        ADD ESP, 0x1C;
+    }
+}
+
+bool TraceIsVisible(vec3_t endPos, float nHeight)
+{
+    CTrace mTrace;
+    endPos.z += nHeight;
+    vec3_t zero = { 0.0f, 0.0f, 0.0f };
+    CG_FastTrace(&mTrace, pRefDef->vCameraPos, endPos, zero, zero, 0, 0x2803001);
+    return(mTrace.Fraction == 1.0f);
+}

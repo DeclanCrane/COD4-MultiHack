@@ -23,16 +23,16 @@ void PlayerESP(int playerIndex)
 				// Are the visible?
 				if (IsTargetVisible(headBoneWall, game.players[playerIndex].cEntity)) {
 					// Enemy visible color
-					Drawing.DrawEspBox2D(feetScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(0 * 255), int(1 * 255), int(0 * 255)));
+					drawing.DrawEspBox2D(feetScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(0 * 255), int(1 * 255), int(0 * 255)));
 				}
 				else {
 					// Enemy invisible color
-					Drawing.DrawEspBox2D(feetScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(1 * 255), int(0 * 255), int(0 * 255)));
+					drawing.DrawEspBox2D(feetScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(1 * 255), int(0 * 255), int(0 * 255)));
 				}
 			}
 			else {
 				// Team color
-				Drawing.DrawEspBox2D(feetScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(0 * 255), int(0 * 255), int(1 * 255)));
+				drawing.DrawEspBox2D(feetScreenPos, enemyHead2D, 1, D3DCOLOR_ARGB(255, int(0 * 255), int(0 * 255), int(1 * 255)));
 			}
         }
     }
@@ -54,7 +54,7 @@ void PlayerESPNew(int playerIndex) {
 	// And get their screen coords
 	if (WorldToScreen(playerWorldPos, screenFeetPos)) {
 		WorldToScreen(playerHeadPos, screenHeadPos);
-		Drawing.DrawEspBox2D(screenFeetPos, screenHeadPos, 1, D3DCOLOR_ARGB(255, 0, 0, 255));
+		drawing.DrawEspBox2D(screenFeetPos, screenHeadPos, 1, D3DCOLOR_ARGB(hack.enemyESPColor.a, hack.enemyESPColor.r, hack.enemyESPColor.g, hack.enemyESPColor.b));
 	}
 }
 
